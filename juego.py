@@ -30,42 +30,57 @@ velocidad_y = 0
 tubo_abajo_img = pygame.image.load("tuberia_abajo.png").convert_alpha()
 tubo_arriba_img = pygame.image.load("tuberia_arriba.png").convert_alpha()
 
-tubo_x = 500
-hueco = 200
-hueco_y = 300
 
-tubo_abajo_rect = tubo_abajo_img.get_rect()
-tubo_abajo_rect.x = tubo_x
-tubo_abajo_rect.y = hueco_y + (hueco // 2)
-
-tubo_arriba_rect = tubo_arriba_img.get_rect()
-tubo_arriba_rect.x = tubo_x
-tubo_arriba_rect.y = hueco_y - (hueco // 2) - tubo_arriba_rect.height
-
-
-
-
-
-def jugador(x,y):
+def crear_tuberia():   
+    espacio = random.randint(150, 200)
+    espacio_altura = random.randint(100, 200)
+   
+    tub_abajo = tubo_abajo_img.get_rect(midtop=(1000, espacio_altura + espacio//2))
     
-    screen.blit(tubo_abajo_img, tubo_abajo_rect)
-    screen.blit(tubo_arriba_img, tubo_arriba_rect)
+    tub_arriba = tubo_arriba_img.get_rect(midbottom=(1000, espacio - espacio_altura//2))
+    print(espacio)
+    return tub_abajo, tub_arriba
+
+
+def jugador(x,y,tuberias):
+    
     screen.blit(imagenPajarito, (x, y))
 
-def crear_tuberia():
-    espacio = random.randint(150, 300)
-    altura_default = tubo_abajo_img.get_height()
+    for tubo in tuberias:
+         if tubo.bottom >= 600:
+              screen.blit(tubo_abajo_img, tubo)
+         else:
+            screen.blit(tubo_arriba_img, tubo)
 
-    y_abajo = random.randrange(0, int(600 - 1.2 * espacio))
-    tub_abajo = 
+tub_abajo_inicial = tubo_abajo_img.get_rect(midtop=(900, 300 + 200//2))
+
+tub_arriba_inicial = tubo_arriba_img.get_rect(midbottom=(900, 300 - 200//2))
+
+lista_tuberias = [tub_abajo_inicial, tub_arriba_inicial]
+CREARTUBERIA = pygame.USEREVENT
+pygame.time.set_timer(CREARTUBERIA, 1200)
+
+def colisiones(pajarito_rect, tuberias):
+    
+    for tubo_rect in tuberias:
+        if pajarito_rect.colliderect(tubo_rect):
+            print("Colision")
+            return False
+    
+    if pajarito_rect.top <= 0 or pajarito_rect.bottom >= 600:
+        print("Colision")
+        return False
+    
+    return True
 
 
 
 #Game Loop
 running = True
+
 while running:
 
-    clock.tick(60)
+    clock.tick(60) 
 
     #RGB - Colores - Rojo, Verde, Azul  
     screen.fill((0,0,0))
@@ -85,19 +100,20 @@ while running:
         
         elif event.type == pygame.QUIT:
             running = False
+        
+        if event.type == CREARTUBERIA:
+            lista_tuberias.extend(crear_tuberia())
     
     velocidad_y += 0.5
     jugadorY += velocidad_y
 
-    if jugadorY < 0:
-            jugadorY = 0
-            velocidad_y = 0
-    
-    if jugadorY > 600 - imagenPajarito.get_height():
-            jugadorY = 600 - imagenPajarito.get_height()
-            velocidad_y = 0
+    running = colisiones(imagenPajarito.get_rect(topleft=(jugadorX, jugadorY)), lista_tuberias)
             
+    for tubo in lista_tuberias:
+        tubo.centerx -= 5
+
+    lista_tuberias = [tubo for tubo in lista_tuberias if tubo.right > -50]
             
     
-    jugador(jugadorX, jugadorY)
+    jugador(jugadorX, jugadorY, lista_tuberias)
     pygame.display.update()
