@@ -32,13 +32,12 @@ tubo_arriba_img = pygame.image.load("tuberia_arriba.png").convert_alpha()
 
 
 def crear_tuberia():   
-    espacio = random.randint(150, 200)
-    espacio_altura = random.randint(100, 200)
+    espacio = random.randint(150, 250)
+    espacio_altura = random.randint(100, 500)
    
     tub_abajo = tubo_abajo_img.get_rect(midtop=(1000, espacio_altura + espacio//2))
     
-    tub_arriba = tubo_arriba_img.get_rect(midbottom=(1000, espacio - espacio_altura//2))
-    print(espacio)
+    tub_arriba = tubo_arriba_img.get_rect(midbottom=(1000, espacio_altura - espacio//2))
     return tub_abajo, tub_arriba
 
 
