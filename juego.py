@@ -1,4 +1,5 @@
 import pygame
+import random
 
 #Inicializar pygame
 pygame.init()
@@ -50,6 +51,14 @@ def jugador(x,y):
     screen.blit(tubo_abajo_img, tubo_abajo_rect)
     screen.blit(tubo_arriba_img, tubo_arriba_rect)
     screen.blit(imagenPajarito, (x, y))
+
+def crear_tuberia():
+    espacio = random.randint(150, 300)
+    altura_default = tubo_abajo_img.get_height()
+
+    y_abajo = random.randrange(0, int(600 - 1.2 * espacio))
+    tub_abajo = 
+
 
 
 #Game Loop
