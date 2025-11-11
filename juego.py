@@ -15,7 +15,7 @@ fondo = pygame.image.load("background.png")
 
 #Titulo e iconos
 pygame.display.set_caption("The Flappy Bird")
-icon = pygame.image.load("/Users/marialaurariande/Downloads/pajarito.png")
+icon = pygame.image.load("pajarito.png")
 pygame.display.set_icon(icon)
 
 #Imagen del flappy bird
@@ -26,10 +26,10 @@ jugadorY = 300
 cambios_jugadorX = 0
 velocidad_y = 0
 
-tubo_abajo_img = pygame.image.load("tub_abajo_100.png").convert_alpha()
-tubo_arriba_img = pygame.image.load("tub_arriba_100.png").convert_alpha()
+tubo_abajo_img = pygame.image.load("tuberia_abajo.png").convert_alpha()
+tubo_arriba_img = pygame.image.load("tuberia_arriba.png").convert_alpha()
 
-tubo_x = 350
+tubo_x = 500
 hueco = 200
 hueco_y = 300
 
