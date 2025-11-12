@@ -22,14 +22,38 @@ pygame.display.set_icon(icon)
 #Imagen del flappy bird
 
 imagenPajarito = pygame.image.load("bird.png").convert_alpha()
-jugadorX = 500
+jugadorX = 300
 jugadorY = 300
 cambios_jugadorX = 0
 velocidad_y = 0
 
+SEMILLA = 42
+random.seed(SEMILLA)
+
 tubo_abajo_img = pygame.image.load("tuberia_abajo.png").convert_alpha()
 tubo_arriba_img = pygame.image.load("tuberia_arriba.png").convert_alpha()
+tub_abajo_inicial = tubo_abajo_img.get_rect(midtop=(900, 300 + 200//2))
 
+tub_arriba_inicial = tubo_arriba_img.get_rect(midbottom=(900, 300 - 200//2))
+
+lista_tuberias = [tub_abajo_inicial, tub_arriba_inicial]
+CREARTUBERIA = pygame.USEREVENT
+pygame.time.set_timer(CREARTUBERIA, 1200)
+
+
+panel_rect = pygame.Rect(800, 0, 200, 600)
+PANEL_COLOR = (16, 16, 16)
+TITULO_COLOR = (255, 255, 0)
+TEXTO_COLOR = (255, 255, 255)
+
+titulo_fuente = pygame.font.Font(None, 35)
+texto_fuente = pygame.font.Font(None, 30)
+
+stats_generacion = 1
+stats_vivos = "1/1"
+stats_velocidad = "1x"
+stats_distancia = 0
+stats_max_distancia = 0
 
 def crear_tuberia():   
     espacio = random.randint(150, 250)
@@ -51,13 +75,41 @@ def jugador(x,y,tuberias):
          else:
             screen.blit(tubo_arriba_img, tubo)
 
-tub_abajo_inicial = tubo_abajo_img.get_rect(midtop=(900, 300 + 200//2))
+def estadisticas():
+    pygame.draw.rect(screen, PANEL_COLOR, panel_rect)
 
-tub_arriba_inicial = tubo_arriba_img.get_rect(midbottom=(900, 300 - 200//2))
+    x_pos = 815
+    y_pos = 20
 
-lista_tuberias = [tub_abajo_inicial, tub_arriba_inicial]
-CREARTUBERIA = pygame.USEREVENT
-pygame.time.set_timer(CREARTUBERIA, 1200)
+    titulo = titulo_fuente.render("GA Statistics", True, TITULO_COLOR)
+    screen.blit(titulo, (x_pos, y_pos))
+    y_pos += 40
+
+    linea_generacion = texto_fuente.render(f"Generation: {stats_generacion}", True, TEXTO_COLOR)
+    screen.blit(linea_generacion, (x_pos, y_pos))
+    y_pos += 30
+
+    linea_vivos = texto_fuente.render(f"Alive: {stats_vivos}", True, TEXTO_COLOR)
+    screen.blit(linea_vivos, (x_pos, y_pos))
+    y_pos += 30
+
+    linea_velocidad = texto_fuente.render(f"Speed: {stats_velocidad}", True, TEXTO_COLOR)
+    screen.blit(linea_velocidad, (x_pos, y_pos))
+    y_pos += 60
+
+    linea_distancia = texto_fuente.render(f"Distance: {stats_distancia}", True, TEXTO_COLOR)
+    screen.blit(linea_distancia, (x_pos, y_pos))
+    y_pos += 30
+
+    linea_distancia_max = texto_fuente.render(f"Max Distance: {stats_max_distancia}", True, TEXTO_COLOR)
+    screen.blit(linea_distancia_max, (x_pos, y_pos))
+    y_pos += 30
+    
+    linea_pajarito = texto_fuente.render(f"Bird Y: {(-(int(jugadorY)-600))}", True, TEXTO_COLOR)
+    screen.blit(linea_pajarito, (x_pos, y_pos))
+
+
+
 
 def colisiones(pajarito_rect, tuberias):
     
@@ -72,21 +124,40 @@ def colisiones(pajarito_rect, tuberias):
     
     return True
 
+def reset():
+    
+    random.seed(SEMILLA)
+    
+    jugadorY = 300
+    velocidad_y = 0
+
+    tub_abajo_inicial = tubo_abajo_img.get_rect(midtop=(900, 300 + 200//2))
+    tub_arriba_inicial = tubo_arriba_img.get_rect(midbottom=(900, 300 - 200//2))
+    lista_tuberias = [tub_abajo_inicial, tub_arriba_inicial]
+
+    stats_distancia = 0
+
+    pygame.time.set_timer(CREARTUBERIA, 0)
+    pygame.time.set_timer(CREARTUBERIA, 1200)
+
+    return jugadorY, velocidad_y, lista_tuberias, stats_distancia
 
 
 #Game Loop
 running = True
-
+game_on = False
 while running:
-
-    clock.tick(60) 
-
+    
     #RGB - Colores - Rojo, Verde, Azul  
     screen.fill((0,0,0))
 
     #Imagen de fondo
     screen.blit(fondo, (0,0))
     
+    
+
+    clock.tick(60) 
+
     for event in pygame.event.get():
 
 
@@ -95,24 +166,44 @@ while running:
                 running = False
 
             if event.key == pygame.K_SPACE:
-                velocidad_y = -10
+                if game_on:
+                    velocidad_y = -10
+                else:
+                    jugadorY, velocidad_y, lista_tuberias, stats_distancia = reset()
+                    game_on = True
         
         elif event.type == pygame.QUIT:
             running = False
         
         if event.type == CREARTUBERIA:
             lista_tuberias.extend(crear_tuberia())
-    
-    velocidad_y += 0.5
-    jugadorY += velocidad_y
 
-    running = colisiones(imagenPajarito.get_rect(topleft=(jugadorX, jugadorY)), lista_tuberias)
-            
-    for tubo in lista_tuberias:
-        tubo.centerx -= 5
+    if game_on:   
+            velocidad_y += 0.5
+            jugadorY += velocidad_y
 
-    lista_tuberias = [tubo for tubo in lista_tuberias if tubo.right > -50]
+            game_on = colisiones(imagenPajarito.get_rect(topleft=(jugadorX, jugadorY)), lista_tuberias)
+                    
+            for tubo in lista_tuberias:
+                tubo.centerx -= 5
+
+            lista_tuberias = [tubo for tubo in lista_tuberias if tubo.right > -50]
+                    
+            stats_distancia += 1
+            if stats_distancia > stats_max_distancia:
+                stats_max_distancia = stats_distancia
+
+            jugador(jugadorX, jugadorY, lista_tuberias)
             
-    
-    jugador(jugadorX, jugadorY, lista_tuberias)
+    else:
+        
+        jugador(jugadorX, jugadorY, lista_tuberias)
+
+        empezar = texto_fuente.render("Press SPACE to Start", True, (255, 255, 255))
+        empezar_rect = empezar.get_rect(center=(500, 300))
+        screen.blit(empezar, empezar_rect)
+
+    estadisticas()
     pygame.display.update()
+
+pygame.quit()
