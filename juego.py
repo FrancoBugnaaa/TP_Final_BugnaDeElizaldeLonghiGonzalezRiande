@@ -102,7 +102,6 @@ while running:
         
         if event.type == CREARTUBERIA:
             lista_tuberias.extend(crear_tuberia())
-    
     velocidad_y += 0.5
     jugadorY += velocidad_y
 
@@ -115,4 +114,4 @@ while running:
             
     
     jugador(jugadorX, jugadorY, lista_tuberias)
-    pygame.display.update()
+    pygame.display.update() 
