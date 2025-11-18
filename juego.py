@@ -12,7 +12,7 @@ clock = pygame.time.Clock()
 
 #Fondo
 
-fondo = pygame.image.load("assets/background.png")
+fondo = pygame.image.load("assets/espacio.png")
 
 #Titulo e iconos
 pygame.display.set_caption("The Flappy Bird")
@@ -21,7 +21,7 @@ pygame.display.set_icon(icon)
 
 #Imagen del flappy bird
 
-imagenPajarito = pygame.image.load("assets/bird.png").convert_alpha()
+imagenPajarito = pygame.image.load("assets/nave.png").convert_alpha()
 jugadorX = 300
 jugadorY = 300
 cambios_jugadorX = 0
@@ -39,6 +39,9 @@ tub_arriba_inicial = tubo_arriba_img.get_rect(midbottom=(900, 300 - 200//2))
 lista_tuberias = [tub_abajo_inicial, tub_arriba_inicial]
 CREARTUBERIA = pygame.USEREVENT
 pygame.time.set_timer(CREARTUBERIA, 1200)
+
+# Propulsor (thrust) image - load once
+propulsor_img = pygame.image.load("assets/propulsor.png").convert_alpha()
 
 
 panel_rect = pygame.Rect(800, 0, 300, 600)
@@ -105,7 +108,7 @@ def estadisticas():
     screen.blit(linea_distancia_max, (x_pos, y_pos))
     y_pos += 30
     
-    linea_pajarito = texto_fuente.render(f"Bird Y: {(-(int(jugadorY)-600))}", True, TEXTO_COLOR)
+    linea_pajarito = texto_fuente.render(f"Bird Y: {int(jugadorY)}", True, TEXTO_COLOR)
     screen.blit(linea_pajarito, (x_pos, y_pos))
 
 
@@ -147,16 +150,17 @@ def reset():
 running = True
 game_on = False
 while running:
-    
     #RGB - Colores - Rojo, Verde, Azul  
     screen.fill((0,0,0))
 
     #Imagen de fondo
     screen.blit(fondo, (0,0))
-    
-    
 
-    clock.tick(60) 
+
+    clock.tick(60)
+
+
+
 
     for event in pygame.event.get():
 
@@ -164,6 +168,8 @@ while running:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 running = False
+                
+
 
             if event.key == pygame.K_SPACE:
                 if game_on:
@@ -171,6 +177,7 @@ while running:
                 else:
                     jugadorY, velocidad_y, lista_tuberias, stats_distancia = reset()
                     game_on = True
+
         
         elif event.type == pygame.QUIT:
             running = False
@@ -193,10 +200,20 @@ while running:
             if stats_distancia > stats_max_distancia:
                 stats_max_distancia = stats_distancia
 
+            # Draw propulsor behind the ship when thrusting (velocidad_y < 0)
+            if velocidad_y < 0:
+                propulsor_rect = propulsor_img.get_rect(center=(jugadorX + imagenPajarito.get_width()//2 - 15, jugadorY + imagenPajarito.get_height()//2 + 10))
+                screen.blit(propulsor_img, propulsor_rect)
+
             jugador(jugadorX, jugadorY, lista_tuberias)
             
     else:
         
+        # Draw propulsor behind the ship when idle/start if it happens to be thrusting
+        if velocidad_y < 0:
+            propulsor_rect = propulsor_img.get_rect(center=(jugadorX + imagenPajarito.get_width()//2 - 15, jugadorY + imagenPajarito.get_height()//2 + 10))
+            screen.blit(propulsor_img, propulsor_rect)
+
         jugador(jugadorX, jugadorY, lista_tuberias)
 
         empezar = texto_fuente.render("Press SPACE to Start", True, (255, 255, 255))
