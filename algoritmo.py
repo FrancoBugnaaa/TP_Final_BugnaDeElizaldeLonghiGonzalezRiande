@@ -27,7 +27,14 @@ class Genomas_Pajaros:
         escala(Valor max absoluto de los pesos generados)
 
         '''
-        return Genomas_Pajaros(random.uniform(-escala,escala),random.uniform(-escala,escala),random.uniform(-escala,escala),random.uniform(-escala,escala),random.uniform(-escala,escala),random.uniform(-escala,escala))
+        return Genomas_Pajaros(
+            random.uniform(-escala,escala),
+            random.uniform(-escala,escala),
+            random.uniform(-escala,escala),
+            random.uniform(-escala,escala),
+            random.uniform(-escala,escala),
+            random.uniform(-escala,escala)
+            )
     
     def aleteo(self,delta_y:float,delta_x:float,velocidad_y:float)->bool:
         aletear = (self.w0 + self.w1*delta_y + self.w2 * (delta_y**2)+ self.w3 * delta_x + self.w4 * (delta_x**2)+ self.w5 * velocidad_y)
@@ -74,3 +81,59 @@ class Genomas_Pajaros:
             if random.random() < probabilidad_mutacion:
                 gen[i] += random.gauss(0.0,sigma)
         self.w0,self.w1,self.w2,self.w3,self.w4,self.w5
+
+class Pajaro:
+    """
+    Representa un pájaro del algoritmo genético.
+
+    Cada pájaro tiene:
+    - genomas: los pesos (w0..w5)
+    - y: posición vertical en el juego
+    - vel_y: velocidad vertical
+    - distancia_recorrida: fitness básico
+    - vivo: si sigue en juego
+    """
+    def __init__(self,genomas,y_inicial=300.0):
+        self.genomas = genomas
+        self.y = y_inicial
+        self.velocidad_y = 0.0
+        self.distancia_recorrida = 0.0
+        self.vivo = True
+        self.estado_fisico = 0.0
+    
+    def reiniciar_pajaro(self,y_inicial=300.0):
+        """
+        Reinicia el pájaro a su estado inicial.
+        """
+        self.y = y_inicial
+        self.velocidad_y = 0.0
+        self.distancia_recorrida = 0.0
+        self.vivo = True
+        self.estado_fisico = 0.0
+    
+    def decidir_aleteo(self,delta_y,deltay2,delta_x):
+        '''
+        LLama a los genomas previamente generados para ver si aletea o no
+        '''
+        return self.genomas.aleteo(delta_y,deltay2,delta_x,self.velocidad_y)
+    
+    def actualizacion_fisica(self):
+        ''''
+        Aplica la gravedad de pygame y mueve el pajaro
+        '''
+        self.velocidad_y += 0.5
+        self.y += self.velocidad_y
+    
+    def aletear(self):
+        '''
+        Aplica el aleteo del pajaro haciendo un salto
+        '''
+        self.velocidad_y = -10
+    
+    def estado_fisico(self):
+        '''
+        Usa la distancia recorrida como la base de la aptitud fisica de ese pajaro
+        '''
+        self.estado_fisico = self.distancia_recorrida
+        return self.estado_fisico
+
