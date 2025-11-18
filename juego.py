@@ -1,5 +1,6 @@
 import pygame
 import random
+import os
 
 
 #Inicializar pygame
@@ -10,7 +11,6 @@ pygame.mixer.init()
 
 #Creacion de la ventana del juego
 screen = pygame.display.set_mode((1000,600))
-
 
 clock = pygame.time.Clock()
 
@@ -26,7 +26,7 @@ tiempo_inicio = pygame.time.get_ticks()
 
 #Fondo
 
-fondo = pygame.image.load("background.png")
+fondo = pygame.image.load("assets/background.png")
 
 #Musica de fondo
 pygame.mixer.music.load("galaga_start.wav")
@@ -40,22 +40,22 @@ sonido_muerte = pygame.mixer.Sound("galaga_ship_hit.wav")
 
 #Titulo e iconos
 pygame.display.set_caption("The Flappy Bird")
-icon = pygame.image.load("pajarito.png")
+icon = pygame.image.load("assets/pajarito.png")
 pygame.display.set_icon(icon)
 
 #Imagen del flappy bird
 
-imagenPajarito = pygame.image.load("bird.png").convert_alpha()
+imagenPajarito = pygame.image.load("assets/bird.png").convert_alpha()
 jugadorX = 300
 jugadorY = 300
 cambios_jugadorX = 0
 velocidad_y = 0
 
-SEMILLA = 42
+SEMILLA = 67
 random.seed(SEMILLA)
 
-tubo_abajo_img = pygame.image.load("tuberia_abajo.png").convert_alpha()
-tubo_arriba_img = pygame.image.load("tuberia_arriba.png").convert_alpha()
+tubo_abajo_img = pygame.image.load("assets/tuberia_abajo.png").convert_alpha()
+tubo_arriba_img = pygame.image.load("assets/tuberia_arriba.png").convert_alpha()
 tub_abajo_inicial = tubo_abajo_img.get_rect(midtop=(900, 300 + 200//2))
 
 tub_arriba_inicial = tubo_arriba_img.get_rect(midbottom=(900, 300 - 200//2))
@@ -65,7 +65,7 @@ CREARTUBERIA = pygame.USEREVENT
 pygame.time.set_timer(CREARTUBERIA, 1200)
 
 
-panel_rect = pygame.Rect(800, 0, 200, 600)
+panel_rect = pygame.Rect(800, 0, 300, 600)
 PANEL_COLOR = (16, 16, 16)
 TITULO_COLOR = (255, 255, 0)
 TEXTO_COLOR = (255, 255, 255)
@@ -76,7 +76,7 @@ texto_fuente = pygame.font.Font(None, 30)
 
 def crear_tuberia():   
     espacio = random.randint(150, 250)
-    espacio_altura = random.randint(150, 500)
+    espacio_altura = random.randint(200, 500)
    
     tub_abajo = tubo_abajo_img.get_rect(midtop=(1000, espacio_altura + espacio//2))
     
@@ -97,7 +97,7 @@ def jugador(x,y,tuberias):
 def estadisticas():
     pygame.draw.rect(screen, PANEL_COLOR, panel_rect)
 
-    x_pos = 815
+    x_pos = 800
     y_pos = 20
 
     titulo = titulo_fuente.render("GA Statistics", True, TITULO_COLOR)
