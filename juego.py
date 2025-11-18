@@ -2,17 +2,41 @@ import pygame
 import random
 import os
 
+
 #Inicializar pygame
 pygame.init()
+
+#Sonido
+pygame.mixer.init()
 
 #Creacion de la ventana del juego
 screen = pygame.display.set_mode((1000,600))
 
 clock = pygame.time.Clock()
 
+#Stats y tiempo
+
+stats_generacion = 1
+stats_vivos = "1/1"
+stats_velocidad = "1x"
+stats_distancia = 0
+stats_max_distancia = 0
+
+tiempo_inicio = pygame.time.get_ticks()
+
 #Fondo
 
 fondo = pygame.image.load("assets/espacio.png")
+
+#Musica de fondo
+pygame.mixer.music.load("galaga_start.wav")
+pygame.mixer.music.play()
+pygame.mixer.music.set_volume(0.5)
+
+#Efectos de sonido para el juego
+sonido_disparo = pygame.mixer.Sound("galaga_shot.wav")
+sonido_explosion = pygame.mixer.Sound("galaga_enemy_explosion.wav")
+sonido_muerte = pygame.mixer.Sound("galaga_ship_hit.wav")
 
 #Titulo e iconos
 pygame.display.set_caption("The Flappy Bird")
@@ -52,11 +76,6 @@ TEXTO_COLOR = (255, 255, 255)
 titulo_fuente = pygame.font.Font(None, 35)
 texto_fuente = pygame.font.Font(None, 30)
 
-stats_generacion = 1
-stats_vivos = "1/1"
-stats_velocidad = "1x"
-stats_distancia = 0
-stats_max_distancia = 0
 
 def crear_tuberia():   
     espacio = random.randint(150, 250)
@@ -110,6 +129,11 @@ def estadisticas():
     
     linea_pajarito = texto_fuente.render(f"Bird Y: {int(jugadorY)}", True, TEXTO_COLOR)
     screen.blit(linea_pajarito, (x_pos, y_pos))
+    y_pos += 30
+
+    tiempo_segundos = (pygame.time.get_ticks() - tiempo_inicio) // 1000
+    linea_tiempo = texto_fuente.render(f"Time: {tiempo_segundos}s / 120s", True, TEXTO_COLOR)
+    screen.blit(linea_tiempo, (x_pos, y_pos))
 
 
 
@@ -118,16 +142,18 @@ def colisiones(pajarito_rect, tuberias):
     
     for tubo_rect in tuberias:
         if pajarito_rect.colliderect(tubo_rect):
-            print("Colision")
+            sonido_muerte.play()
             return False
     
     if pajarito_rect.top <= 0 or pajarito_rect.bottom >= 550:
-        print("Colision") 
+        sonido_muerte.play() 
         return False
     
     return True
 
 def reset():
+
+    global tiempo_inicio
     
     random.seed(SEMILLA)
     
@@ -142,6 +168,8 @@ def reset():
 
     pygame.time.set_timer(CREARTUBERIA, 0)
     pygame.time.set_timer(CREARTUBERIA, 1200)
+
+    tiempo_inicio = pygame.time.get_ticks()
 
     return jugadorY, velocidad_y, lista_tuberias, stats_distancia
 
@@ -174,6 +202,7 @@ while running:
             if event.key == pygame.K_SPACE:
                 if game_on:
                     velocidad_y = -10
+                    sonido_disparo.play()
                 else:
                     jugadorY, velocidad_y, lista_tuberias, stats_distancia = reset()
                     game_on = True
@@ -185,7 +214,17 @@ while running:
         if event.type == CREARTUBERIA:
             lista_tuberias.extend(crear_tuberia())
 
-    if game_on:   
+    if game_on:  
+
+            # controlar el tiempo que lleva la partida
+            tiempo_actual = (pygame.time.get_ticks() - tiempo_inicio)/ 1000
+
+            if tiempo_actual >= 120:
+
+
+                game_on = False
+
+            #Pajarito y sus caracteristicas
             velocidad_y += 0.5
             jugadorY += velocidad_y
 
