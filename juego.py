@@ -24,6 +24,12 @@ MAX_DELTA_Y = HEIGHT * 1.5
 MAX_DELTA_X = WIDTH - jugadorX
 MAX_VELOCIDAD_Y = 15
 
+#Stats y tiempo
+stats_generacion = 1
+stats_velocidad = "1x"
+stats_distancia = 0
+stats_max_distancia = 0
+
 
 #Inicializar pygame
 pygame.init()
@@ -32,16 +38,9 @@ pygame.init()
 pygame.mixer.init()
 
 #Creacion de la ventana del juego
-screen = pygame.display.set_mode((1000,600))
+screen = pygame.display.set_mode((WIDTH,HEIGHT))
 
 clock = pygame.time.Clock()
-
-#Stats y tiempo
-
-stats_generacion = 1
-stats_velocidad = "1x"
-stats_distancia = 0
-stats_max_distancia = 0
 
 poblacion = []
 pajaros_vivos = []
@@ -75,14 +74,14 @@ jugadorY = 300
 cambios_jugadorX = 0
 velocidad_y = 0
 
-SEMILLA = 68
+SEMILLA = 7
 random.seed(SEMILLA)
 
 tubo_abajo_img = pygame.image.load("assets/tuberia_abajo.png").convert_alpha()
 tubo_arriba_img = pygame.image.load("assets/tuberia_arriba.png").convert_alpha()
-tub_abajo_inicial = tubo_abajo_img.get_rect(midtop=(900, 300 + 200//2))
+tub_abajo_inicial = tubo_abajo_img.get_rect(midtop=(900, 300 + GAP_ALTURA//2))
 
-tub_arriba_inicial = tubo_arriba_img.get_rect(midbottom=(900, 300 - 200//2))
+tub_arriba_inicial = tubo_arriba_img.get_rect(midbottom=(900, 300 - GAP_ALTURA//2))
 
 lista_tuberias = [tub_abajo_inicial, tub_arriba_inicial]
 CREARTUBERIA = pygame.USEREVENT
@@ -103,7 +102,7 @@ texto_fuente = pygame.font.Font(None, 30)
 
 def crear_tuberia():   
     espacio = random.randint(150, 250)
-    espacio_altura = random.randint(200, 500)
+    espacio_altura = random.randint(200, 400)
    
     tub_abajo = tubo_abajo_img.get_rect(midtop=(1000, espacio_altura + espacio//2))
     
@@ -374,8 +373,8 @@ while running:
                 if pajaro.velocidad_y < 0:
                     propulsor_rect = propulsor_img.get_rect(
                         center=(
-                        jugadorX + imagenPajarito.get_width() // 2 - 15,
-                        pajaro.y + imagenPajarito.get_height() // 2 + 10
+                        jugadorX + imagenPajarito.get_width() // 2 - 30,
+                        pajaro.y + imagenPajarito.get_height() // 2
                             )
                     )
                     screen.blit(propulsor_img, propulsor_rect)
@@ -390,8 +389,8 @@ while running:
             if pajaro.velocidad_y < 0:
                 propulsor_rect = propulsor_img.get_rect(
                 center=(
-                    jugadorX + imagenPajarito.get_width() // 2 - 15,
-                    pajaro.y + imagenPajarito.get_height() // 2 + 10
+                    jugadorX + imagenPajarito.get_width() // 2 - 30,
+                    pajaro.y + imagenPajarito.get_height() // 2
                     )
                 )
                 screen.blit(propulsor_img, propulsor_rect)
