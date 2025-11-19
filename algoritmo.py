@@ -80,7 +80,7 @@ class Genomas_Pajaros:
         for i in range(len(gen)):
             if random.random() < probabilidad_mutacion:
                 gen[i] += random.gauss(0.0,sigma)
-        gen = self.w0,self.w1,self.w2,self.w3,self.w4,self.w5 
+        self.w0,self.w1,self.w2,self.w3,self.w4,self.w5 = gen
 
 class Pajaro:
     """
@@ -131,7 +131,7 @@ class Pajaro:
         '''
         self.velocidad_y = -10
     
-    def estado_fisico(self):
+    def calcular_estado_fisico(self):
         '''
         Usa la distancia recorrida como la base de la aptitud fisica de ese pajaro
         '''

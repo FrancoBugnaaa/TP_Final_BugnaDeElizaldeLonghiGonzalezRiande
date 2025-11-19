@@ -8,7 +8,7 @@ from algoritmo import Genomas_Pajaros, Pajaro
 TAMANO_POBLACION = 100
 PROB_CRUCE = 0.5
 PROB_MUTACION = 0.1
-SIGMA_MUTACION = 0.1 #Puede ser 0.5
+SIGMA_MUTACION = 0.5 
 SELECCION_ELITE = 2 #Los 2 mejores pajaros pasan de generacion siendo genomas padres
 
 #Constantes Juego
@@ -65,8 +65,8 @@ fondo = pygame.image.load("assets/espacio.png")
 #sonido_muerte = pygame.mixer.Sound("galaga_ship_hit.wav")
 
 #Titulo e iconos
-pygame.display.set_caption("The Flappy Bird")
-icon = pygame.image.load("assets/pajarito.png")
+pygame.display.set_caption("The Flappy Space Ship")
+icon = pygame.image.load("assets/nave.png")
 pygame.display.set_icon(icon)
 
 explosion = pygame.image.load("assets/explosion.png").convert_alpha()
