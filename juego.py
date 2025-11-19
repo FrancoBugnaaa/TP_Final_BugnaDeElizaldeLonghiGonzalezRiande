@@ -12,6 +12,9 @@ SIGMA_MUTACION = 0.1 #Puede ser 0.5
 SELECCION_ELITE = 2 #Los 2 mejores pajaros pasan de generacion siendo genomas padres
 
 #Constantes Juego
+FPS = 60
+MAX_TIME = 120
+
 WIDTH, HEIGHT = 1000,600
 GRAVEDAD = 0.5
 VELOCIDAD_TUBERIAS = 5
@@ -65,6 +68,8 @@ fondo = pygame.image.load("assets/espacio.png")
 pygame.display.set_caption("The Flappy Bird")
 icon = pygame.image.load("assets/pajarito.png")
 pygame.display.set_icon(icon)
+
+explosion = pygame.image.load("assets/explosion.png").convert_alpha()
 
 #Imagen del flappy bird
 
@@ -163,17 +168,22 @@ def estadisticas():
     screen.blit(linea_tiempo, (x_pos, y_pos))
 
 
-
+muertes = []
 
 def colisiones(pajarito_rect, tuberias):
     
     for tubo_rect in tuberias:
         if pajarito_rect.colliderect(tubo_rect):
             #sonido_muerte.play()
+            muertes.append(pajarito_rect)
+            
+
             return False
+        
     
     if pajarito_rect.top <= 0 or pajarito_rect.bottom >= 550:
         #sonido_muerte.play() 
+        muertes.append(pajarito_rect)
         return False
     
     return True
@@ -199,6 +209,8 @@ def reset():
 
     tiempo_inicio = pygame.time.get_ticks()
 
+    muertes.clear()
+
     return jugadorY, velocidad_y, lista_tuberias, stats_distancia
 
 def generar_poblacion_inicial():
@@ -215,6 +227,7 @@ def generar_poblacion_inicial():
 
     stats_generacion = 1
     stats_distancia = 0
+
 
     reset()
 
@@ -275,7 +288,7 @@ while running:
     screen.blit(fondo, (0,0))
 
 
-    clock.tick(60)
+    clock.tick(FPS)
 
 
 
@@ -316,6 +329,12 @@ while running:
                     
             for tubo in lista_tuberias:
                 tubo.centerx -= VELOCIDAD_TUBERIAS
+            
+            for muerte in muertes:
+                muerte.centerx -= VELOCIDAD_TUBERIAS
+
+            for muerte in muertes:
+                screen.blit(explosion, muerte)            
 
             lista_tuberias = [tubo for tubo in lista_tuberias if tubo.right > -50]
 
