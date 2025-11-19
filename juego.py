@@ -79,7 +79,7 @@ jugadorY = 300
 cambios_jugadorX = 0
 velocidad_y = 0
 
-SEMILLA = 7
+SEMILLA = 10
 random.seed(SEMILLA)
 
 tubo_abajo_img = pygame.image.load("assets/tuberia_abajo.png").convert_alpha()
@@ -415,6 +415,17 @@ while running:
                 screen.blit(propulsor_img, propulsor_rect)
 
             screen.blit(imagenPajarito, (jugadorX, pajaro.y))
+
+        if tiempo_actual >= 120:
+                
+                goal = texto_fuente.render("Time Goal Reached", True, (255, 255, 255))
+                goal_rect = goal.get_rect(center=(500, 275))
+                screen.blit(goal, goal_rect)
+
+                endgame = texto_fuente.render("Press ESC to Exit", True, (255, 255, 255))
+                endgame_rect = endgame.get_rect(center=(500, 300))
+                screen.blit(endgame, endgame_rect)
+
 
 
     estadisticas()
