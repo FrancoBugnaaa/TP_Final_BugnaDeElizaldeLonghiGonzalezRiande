@@ -80,7 +80,7 @@ class Genomas_Pajaros:
         for i in range(len(gen)):
             if random.random() < probabilidad_mutacion:
                 gen[i] += random.gauss(0.0,sigma)
-        self.w0,self.w1,self.w2,self.w3,self.w4,self.w5
+        gen = self.w0,self.w1,self.w2,self.w3,self.w4,self.w5 
 
 class Pajaro:
     """
@@ -110,12 +110,13 @@ class Pajaro:
         self.distancia_recorrida = 0.0
         self.vivo = True
         self.estado_fisico = 0.0
+        return self
     
-    def decidir_aleteo(self,delta_y,deltay2,delta_x):
+    def decidir_aleteo(self,delta_y,delta_x,velocidad_y):
         '''
         LLama a los genomas previamente generados para ver si aletea o no
         '''
-        return self.genomas.aleteo(delta_y,deltay2,delta_x,self.velocidad_y)
+        return self.genomas.aleteo(delta_y,delta_x,velocidad_y)
     
     def actualizacion_fisica(self):
         ''''
