@@ -4,6 +4,8 @@ import os
 import math
 from algoritmo import Genomas_Pajaros, Pajaro
 
+from pygame import mixer
+
 #Constantes GA
 TAMANO_POBLACION = 100
 PROB_CRUCE = 0.5
@@ -55,14 +57,9 @@ tiempo_inicio = pygame.time.get_ticks()
 fondo = pygame.image.load("assets/espacio.png")    
 
 #Musica de fondo
-#pygame.mixer.music.load("galaga_start.wav")
-#pygame.mixer.music.play()
-#pygame.mixer.music.set_volume(0.5)
+mixer.music.load("background.wav")
+mixer.music.play(-1)
 
-#Efectos de sonido para el juego
-#sonido_disparo = pygame.mixer.Sound("galaga_shot.wav")
-#sonido_explosion = pygame.mixer.Sound("galaga_enemy_explosion.wav")
-#sonido_muerte = pygame.mixer.Sound("galaga_ship_hit.wav")
 
 #Titulo e iconos
 pygame.display.set_caption("The Flappy Space Ship")
@@ -174,7 +171,11 @@ def colisiones(pajarito_rect, tuberias):
     
     for tubo_rect in tuberias:
         if pajarito_rect.colliderect(tubo_rect):
-            #sonido_muerte.play()
+            
+            #sonido_de_explosion
+            explosion = mixer.Sound("explosion.wav")
+            explosion.Sound.play()
+
             muertes.append(pajarito_rect)
             
 
@@ -182,7 +183,10 @@ def colisiones(pajarito_rect, tuberias):
         
     
     if pajarito_rect.top <= 0 or pajarito_rect.bottom >= 550:
-        #sonido_muerte.play() 
+        #sonido_de_explosion
+        explosion = mixer.Sound("explosion.wav")
+        explosion.Sound.play()
+
         muertes.append(pajarito_rect)
         return False
     
