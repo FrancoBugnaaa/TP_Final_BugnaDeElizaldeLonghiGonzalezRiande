@@ -32,8 +32,11 @@ MAX_VELOCIDAD_Y = 15
 #Stats y tiempo
 stats_generacion = 1
 stats_velocidad = "1x"
+mult_velocidad = 1
 stats_distancia = 0
 stats_max_distancia = 0
+tiempo_actual = 0
+promedio_distancia = 0
 
 
 #Inicializar pygame
@@ -99,7 +102,7 @@ TITULO_COLOR = (255, 255, 0)
 TEXTO_COLOR = (255, 255, 255)
 
 titulo_fuente = pygame.font.Font(None, 35)
-texto_fuente = pygame.font.Font(None, 30)
+texto_fuente = pygame.font.Font(None, 25)
 
 
 def crear_tuberia():   
@@ -124,7 +127,7 @@ def jugador(x,y,tuberias):
 def estadisticas():
     pygame.draw.rect(screen, PANEL_COLOR, panel_rect)
 
-    x_pos = 800
+    x_pos = 810
     y_pos = 20
 
     titulo = titulo_fuente.render("GA Statistics", True, TITULO_COLOR)
@@ -139,28 +142,27 @@ def estadisticas():
     screen.blit(linea_vivos, (x_pos, y_pos))
     y_pos += 30
 
+    linea_prev_gen = texto_fuente.render(f"Prev Gen 2min: ", True, TEXTO_COLOR)
+    screen.blit(linea_prev_gen, (x_pos, y_pos))
+    y_pos += 30
+
     linea_velocidad = texto_fuente.render(f"Speed: {stats_velocidad}", True, TEXTO_COLOR)
     screen.blit(linea_velocidad, (x_pos, y_pos))
     y_pos += 60
 
-    linea_distancia = texto_fuente.render(f"Distance: {stats_distancia}", True, TEXTO_COLOR)
+    linea_distancia = texto_fuente.render(f"Current Distance: {stats_distancia}", True, TEXTO_COLOR)
     screen.blit(linea_distancia, (x_pos, y_pos))
     y_pos += 30
 
     linea_distancia_max = texto_fuente.render(f"Max Distance: {stats_max_distancia}", True, TEXTO_COLOR)
     screen.blit(linea_distancia_max, (x_pos, y_pos))
     y_pos += 30
+
+    linea_distancia_avg = texto_fuente.render(f"Avg Distance: {promedio_distancia}", True, TEXTO_COLOR)
+    screen.blit(linea_distancia_avg, (x_pos, y_pos))
+    y_pos += 60
     
-    if pajaros_vivos:
-        mejor_y = min(p.y for p in pajaros_vivos)
-    else:
-        mejor_y = jugadorY
-
-    linea_pajarito = texto_fuente.render(f"Bird Y: {int(mejor_y)}", True, TEXTO_COLOR)
-    screen.blit(linea_pajarito, (x_pos, y_pos))
-    y_pos += 30
-
-    tiempo_segundos = (pygame.time.get_ticks() - tiempo_inicio) // 1000
+    tiempo_segundos = int(tiempo_actual)
     linea_tiempo = texto_fuente.render(f"Time: {tiempo_segundos}s / 120s", True, TEXTO_COLOR)
     screen.blit(linea_tiempo, (x_pos, y_pos))
 
@@ -173,8 +175,8 @@ def colisiones(pajarito_rect, tuberias):
         if pajarito_rect.colliderect(tubo_rect):
             
             #sonido_de_explosion
-            explosion = mixer.Sound("explosion.wav")
-            explosion.Sound.play()
+            # explosion = mixer.Sound("explosion.wav")
+            # explosion.Sound.play()
 
             muertes.append(pajarito_rect)
             
@@ -184,8 +186,8 @@ def colisiones(pajarito_rect, tuberias):
     
     if pajarito_rect.top <= 0 or pajarito_rect.bottom >= 550:
         #sonido_de_explosion
-        explosion = mixer.Sound("explosion.wav")
-        explosion.Sound.play()
+        # explosion = mixer.play("explosion.wav")
+        # explosion.Sound.play()
 
         muertes.append(pajarito_rect)
         return False
@@ -194,7 +196,7 @@ def colisiones(pajarito_rect, tuberias):
 
 def reset():
 
-    global tiempo_inicio, jugadorY,velocidad_y,lista_tuberias,stats_distancia
+    global tiempo_inicio, jugadorY,velocidad_y,lista_tuberias,stats_distancia, promedio_distancia, tiempo_actual
     
     random.seed(SEMILLA)
     
@@ -208,10 +210,9 @@ def reset():
 
     stats_distancia = 0
 
-    pygame.time.set_timer(CREARTUBERIA, 0)
-    pygame.time.set_timer(CREARTUBERIA, 1200)
-
     tiempo_inicio = pygame.time.get_ticks()
+
+    tiempo_actual = 0
 
     muertes.clear()
 
@@ -237,7 +238,7 @@ def generar_poblacion_inicial():
 
 def seleccion_y_evolucion():
     """Selección, cruce y mutación para formar la nueva generación."""
-    global poblacion, pajaros_vivos, stats_generacion, stats_max_distancia, stats_distancia
+    global poblacion, pajaros_vivos, stats_generacion, stats_max_distancia, stats_distancia, promedio_distancia 
 
     stats_generacion += 1
     stats_distancia = 0
@@ -246,12 +247,22 @@ def seleccion_y_evolucion():
     poblacion.sort(key=lambda p: p.distancia_recorrida, reverse=True)
 
     if poblacion:
+
+        print(f"Gen {stats_generacion-1} -> Mejor Distancia: {poblacion[0].distancia_recorrida}")
         stats_max_distancia = max(stats_max_distancia, poblacion[0].distancia_recorrida)
+
+        distancia_total = 0
+
+        for i in range(len(poblacion)):
+            distancia_total += poblacion[i].distancia_recorrida
 
     # Elitismo
     nueva_poblacion = [Pajaro(p.genomas) for p in poblacion[:SELECCION_ELITE]]
 
     fitness_total = sum(p.distancia_recorrida for p in poblacion)
+
+    promedio_distancia = (distancia_total // 100)
+
 
     def seleccionar_padre():
         if fitness_total == 0:
@@ -292,9 +303,10 @@ while running:
     screen.blit(fondo, (0,0))
 
 
-    clock.tick(FPS)
+    deltatime = clock.tick(FPS)
 
-
+    deltatime_factor = (deltatime / 16.66)* mult_velocidad
+    if deltatime_factor > 10: deltatime_factor = 10
 
 
     for event in pygame.event.get():
@@ -314,17 +326,27 @@ while running:
             #         jugadorY, velocidad_y, lista_tuberias, stats_distancia = reset()
             #         game_on = True
 
-        
+            if event.key == pygame.K_1:
+                mult_velocidad = 1.0
+                stats_velocidad = "1x"
+            elif event.key == pygame.K_2:
+                mult_velocidad = 2.0
+                stats_velocidad = "2x"
+            elif event.key == pygame.K_3:
+                mult_velocidad = 5.0 
+                stats_velocidad = "3x"
+
+
+
         elif event.type == pygame.QUIT:
             running = False
         
-        if event.type == CREARTUBERIA:
-            lista_tuberias.extend(crear_tuberia())
-
     if game_on:  
 
+
+
             # controlar el tiempo que lleva la partida
-            tiempo_actual = (pygame.time.get_ticks() - tiempo_inicio)/ 1000
+            tiempo_actual += (deltatime * mult_velocidad) / 1000.
 
             if tiempo_actual >= 120:
                 game_on = False
@@ -332,15 +354,21 @@ while running:
             #game_on = colisiones(imagenPajarito.get_rect(topleft=(jugadorX, jugadorY)), lista_tuberias)
                     
             for tubo in lista_tuberias:
-                tubo.centerx -= VELOCIDAD_TUBERIAS
+                tubo.centerx -= VELOCIDAD_TUBERIAS * deltatime_factor
             
             for muerte in muertes:
-                muerte.centerx -= VELOCIDAD_TUBERIAS
+                muerte.centerx -= VELOCIDAD_TUBERIAS * deltatime_factor
 
             for muerte in muertes:
                 screen.blit(explosion, muerte)            
 
             lista_tuberias = [tubo for tubo in lista_tuberias if tubo.right > -50]
+
+            ultima_tuberia = lista_tuberias[-1]
+            if WIDTH - ultima_tuberia.centerx >= 400:
+                tub_abajo, tub_arriba = crear_tuberia()
+                lista_tuberias.append(tub_abajo)
+                lista_tuberias.append(tub_arriba)
 
             next_pipe = None
             for tubo in lista_tuberias:
@@ -351,8 +379,8 @@ while running:
             nuevos_vivos = []
             for pajaro in pajaros_vivos:
 
-                pajaro.velocidad_y += GRAVEDAD
-                pajaro.y += pajaro.velocidad_y
+                pajaro.velocidad_y += GRAVEDAD * deltatime_factor
+                pajaro.y += pajaro.velocidad_y * deltatime_factor
 
                 if next_pipe is not None:
                     next_pipe_center = next_pipe.bottom + GAP_ALTURA//2 
@@ -370,7 +398,7 @@ while running:
                 pajaro_rect = imagenPajarito.get_rect(topleft=(jugadorX, pajaro.y))
                 if colisiones(pajaro_rect, lista_tuberias):
                     nuevos_vivos.append(pajaro)
-                    pajaro.distancia_recorrida += 1
+                    pajaro.distancia_recorrida += 1 * deltatime_factor
                 else:
                     pajaro.vivo = False
                 
@@ -385,7 +413,7 @@ while running:
             velocidad_y = mejor.velocidad_y
 
                     
-            stats_distancia += 1
+            stats_distancia += int(1*deltatime_factor)
             if stats_distancia > stats_max_distancia:
                 stats_max_distancia = stats_distancia
 
