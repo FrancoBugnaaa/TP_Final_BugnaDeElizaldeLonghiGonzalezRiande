@@ -1,7 +1,6 @@
 import pygame
-import random
-import os
 import math
+import random
 from algoritmo import Genomas_Pajaros, Pajaro
 
 from pygame import mixer
@@ -10,7 +9,6 @@ from pygame import mixer
 TAMANO_POBLACION = 100
 PROB_CRUCE = 0.5
 PROB_MUTACION = 0.1
-SIGMA_MUTACION = 0.5 
 SELECCION_ELITE = 2 #Los 2 mejores pajaros pasan de generacion siendo genomas padres
 
 #Constantes Juego
@@ -246,6 +244,8 @@ def seleccion_y_evolucion():
     # Ordenar por fitness (distancia_recorrida)
     poblacion.sort(key=lambda p: p.distancia_recorrida, reverse=True)
 
+    mutation_strength = 0.5 * (1 + math.exp(-stats_generacion / 30))
+
     if poblacion:
 
         print(f"Gen {stats_generacion-1} -> Mejor Distancia: {poblacion[0].distancia_recorrida}")
@@ -261,7 +261,7 @@ def seleccion_y_evolucion():
 
     fitness_total = sum(p.distancia_recorrida for p in poblacion)
 
-    promedio_distancia = (distancia_total // 100)
+    promedio_distancia = (distancia_total // len(poblacion))
 
 
     def seleccionar_padre():
@@ -281,7 +281,7 @@ def seleccion_y_evolucion():
         padre2 = seleccionar_padre()
 
         hijo_genoma = Genomas_Pajaros.cruce_uniforme(padre1, padre2, PROB_CRUCE)
-        hijo_genoma.mutacion(PROB_MUTACION, SIGMA_MUTACION)
+        hijo_genoma.mutacion(PROB_MUTACION, mutation_strength)
 
         nueva_poblacion.append(Pajaro(hijo_genoma))
 
@@ -399,6 +399,7 @@ while running:
                 if colisiones(pajaro_rect, lista_tuberias):
                     nuevos_vivos.append(pajaro)
                     pajaro.distancia_recorrida += 1 * deltatime_factor
+                    pajaro.tiempo_vivo += 1 * deltatime_factor
                 else:
                     pajaro.vivo = False
                 

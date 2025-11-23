@@ -18,7 +18,7 @@ class Genomas_Pajaros:
         self.w4 = w4
         self.w5 = w5
 
-    def asignacion_random(escala:float=1.0)-> "Genomas_Pajaros":
+    def asignacion_random(escala:float=5.0)-> "Genomas_Pajaros":
         '''
         Genera un genoma random usando usando el rango de [-escala, escala] repartiendo al mismo uniformemente
 
@@ -99,6 +99,9 @@ class Pajaro:
         self.velocidad_y = 0.0
         self.distancia_recorrida = 0.0
         self.vivo = True
+
+        self.tiempo_vivo = 0.0
+
         self.estado_fisico = 0.0
     
     def reiniciar_pajaro(self,y_inicial=300.0):
@@ -109,6 +112,7 @@ class Pajaro:
         self.velocidad_y = 0.0
         self.distancia_recorrida = 0.0
         self.vivo = True
+        self.tiempo_vivo = 0.0
         self.estado_fisico = 0.0
         return self
     
