@@ -300,7 +300,7 @@ def dibujar_genomas(surface, x_start, y_start, poblacion):
     if not poblacion:
         return
 
-    labels = ["w0(Bias)", "w1(dy)", "w2(dy2)", "w3(dx)", "w4(dx2)", "w5(vy)"]
+    labels = ["w0", "w1(dy)", "w2(dy²)", "w3(dx)", "w4(dx²)", "w5(vy)"]
 
     for i in range(6):
         nombre_peso = f"w{i}"
