@@ -9,7 +9,7 @@ from pygame import mixer
 TAMANO_POBLACION = 100
 PROB_CRUCE = 0.5
 PROB_MUTACION = 0.1
-SELECCION_ELITE = 2 #Los 2 mejores pajaros pasan de generacion siendo genomas padres
+SELECCION_ELITE = 2
 
 #Constantes Juego
 FPS = 60
@@ -55,7 +55,6 @@ pajaros_vivos = []
 tiempo_inicio = pygame.time.get_ticks()
 
 #Fondo
-
 fondo = pygame.image.load("assets/espacio.png")    
 
 #Musica de fondo
@@ -70,16 +69,11 @@ pygame.display.set_icon(icon)
 
 explosion = pygame.image.load("assets/explosion.png").convert_alpha()
 
-#Imagen del flappy bird
-
 imagenPajarito = pygame.image.load("assets/nave.png").convert_alpha()
 jugadorX = 300
 jugadorY = 300
 cambios_jugadorX = 0
 velocidad_y = 0
-
-# SEMILLA = 10
-# random.seed(SEMILLA)
 
 tubo_abajo_img = pygame.image.load("assets/tuberia_abajo.png").convert_alpha()
 tubo_arriba_img = pygame.image.load("assets/tuberia_arriba.png").convert_alpha()
@@ -91,11 +85,9 @@ lista_tuberias = [tub_abajo_inicial, tub_arriba_inicial]
 CREARTUBERIA = pygame.USEREVENT
 pygame.time.set_timer(CREARTUBERIA, 1200)
 
-# Propulsor (thrust) image - load once
 propulsor_img = pygame.image.load("assets/propulsor.png").convert_alpha()
 
-
-panel_rect = pygame.Rect(800, 0, 300, 600)
+panel_rect = pygame.Rect(700, 0, 300, 600)
 PANEL_COLOR = (16, 16, 16)
 TITULO_COLOR = (255, 255, 0)
 TEXTO_COLOR = (255, 255, 255)
@@ -126,7 +118,7 @@ def jugador(x,y,tuberias):
 def estadisticas():
     pygame.draw.rect(screen, PANEL_COLOR, panel_rect)
 
-    x_pos = 810
+    x_pos = 710
     y_pos = 20
 
     titulo = titulo_fuente.render("GA Statistics", True, TITULO_COLOR)
@@ -164,6 +156,9 @@ def estadisticas():
     tiempo_segundos = int(tiempo_actual)
     linea_tiempo = texto_fuente.render(f"Time: {tiempo_segundos}s / 120s", True, TEXTO_COLOR)
     screen.blit(linea_tiempo, (x_pos, y_pos))
+    y_pos += 40
+
+    dibujar_genomas(screen, x_pos, y_pos, poblacion)
 
 
 muertes = []
@@ -291,7 +286,69 @@ def seleccion_y_evolucion():
 
     reset()
 
+def dibujar_genomas(surface, x_start, y_start, poblacion):
+    # --- AJUSTES PARA PANEL DE 300px ---
+    scale = 35        # Escala intermedia
+    bar_height = 12
+    espaciado = 25
+    
+    # El centro de las barras estará en x + 160px
+    center_x = x_start + 160 
 
+    texto_fuente_mini = pygame.font.Font(None, 20)
+
+    # Título
+    titulo = texto_fuente.render("Genome (Avg ± Std)", True, (255, 255, 255))
+    surface.blit(titulo, (x_start, y_start))
+    y_start += 35
+
+    if not poblacion:
+        return
+
+    labels = ["w0(Bias)", "w1(dy)", "w2(dy²)", "w3(dx)", "w4(dx²)", "w5(vy)"]
+
+    for i in range(6):
+        nombre_peso = f"w{i}"
+        valores = [getattr(p.genomas, nombre_peso) for p in poblacion]
+        
+        promedio = sum(valores) / len(valores)
+        varianza = sum((x - promedio) ** 2 for x in valores) / len(valores)
+        desviacion = math.sqrt(varianza)
+
+        draw_y = y_start + 2
+
+        # 1. Etiqueta (Texto alineado a la izquierda)
+        lbl = texto_fuente_mini.render(labels[i], True, (180, 180, 180))
+        surface.blit(lbl, (x_start, y_start))
+
+        # 2. Línea central (Cero)
+        pygame.draw.line(surface, (100, 100, 100), (center_x, draw_y - 5), (center_x, draw_y + bar_height + 5), 1)
+
+        # 3. Barra Desviación (Gris)
+        start_dev = (promedio - desviacion) * scale
+        width_dev = (desviacion * 2) * scale
+        rect_dev = pygame.Rect(center_x + start_dev, draw_y, width_dev, bar_height)
+        pygame.draw.rect(surface, (80, 80, 80), rect_dev) 
+
+        # 4. Barra Promedio (Color)
+        color = (0, 255, 0) if promedio >= 0 else (255, 50, 50)
+        largo_promedio = promedio * scale
+        
+        if promedio >= 0:
+            rect_avg = pygame.Rect(center_x, draw_y + 3, largo_promedio, bar_height - 6)
+        else:
+            rect_avg = pygame.Rect(center_x + largo_promedio, draw_y + 3, -largo_promedio, bar_height - 6)
+            
+        pygame.draw.rect(surface, color, rect_avg)
+
+        # 5. Valor numérico (A la derecha de todo, pequeño)
+        val_txt = texto_fuente.render(f"{promedio:.2f}", True, (255, 255, 255))
+        # Si la barra es muy larga a la derecha, movemos el texto para que no se pisen
+        text_x = center_x + 80 
+        surface.blit(val_txt, (text_x, y_start))
+
+        y_start += espaciado
+        
 #Game Loop
 generar_poblacion_inicial()
 running = True

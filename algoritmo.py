@@ -99,9 +99,7 @@ class Pajaro:
         self.velocidad_y = 0.0
         self.distancia_recorrida = 0.0
         self.vivo = True
-
         self.tiempo_vivo = 0.0
-
         self.estado_fisico = 0.0
     
     def reiniciar_pajaro(self,y_inicial=300.0):
