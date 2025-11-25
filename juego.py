@@ -35,6 +35,7 @@ stats_distancia = 0
 stats_max_distancia = 0
 tiempo_actual = 0
 promedio_distancia = 0
+prev_gen = 0
 
 
 #Inicializar pygame
@@ -77,8 +78,8 @@ jugadorY = 300
 cambios_jugadorX = 0
 velocidad_y = 0
 
-SEMILLA = 10
-random.seed(SEMILLA)
+# SEMILLA = 10
+# random.seed(SEMILLA)
 
 tubo_abajo_img = pygame.image.load("assets/tuberia_abajo.png").convert_alpha()
 tubo_arriba_img = pygame.image.load("assets/tuberia_arriba.png").convert_alpha()
@@ -140,7 +141,7 @@ def estadisticas():
     screen.blit(linea_vivos, (x_pos, y_pos))
     y_pos += 30
 
-    linea_prev_gen = texto_fuente.render(f"Prev Gen 2min: ", True, TEXTO_COLOR)
+    linea_prev_gen = texto_fuente.render(f"Prev Gen 2min: {prev_gen}", True, TEXTO_COLOR)
     screen.blit(linea_prev_gen, (x_pos, y_pos))
     y_pos += 30
 
@@ -152,11 +153,11 @@ def estadisticas():
     screen.blit(linea_distancia, (x_pos, y_pos))
     y_pos += 30
 
-    linea_distancia_max = texto_fuente.render(f"Max Distance: {stats_max_distancia}", True, TEXTO_COLOR)
+    linea_distancia_max = texto_fuente.render(f"Max Distance: {int(stats_max_distancia)}", True, TEXTO_COLOR)
     screen.blit(linea_distancia_max, (x_pos, y_pos))
     y_pos += 30
 
-    linea_distancia_avg = texto_fuente.render(f"Avg Distance: {promedio_distancia}", True, TEXTO_COLOR)
+    linea_distancia_avg = texto_fuente.render(f"Avg Distance: {int(promedio_distancia)}", True, TEXTO_COLOR)
     screen.blit(linea_distancia_avg, (x_pos, y_pos))
     y_pos += 60
     
@@ -196,7 +197,7 @@ def reset():
 
     global tiempo_inicio, jugadorY,velocidad_y,lista_tuberias,stats_distancia, promedio_distancia, tiempo_actual
     
-    random.seed(SEMILLA)
+    # random.seed(SEMILLA)
     
     jugadorY = 300
     velocidad_y = 0
@@ -348,8 +349,16 @@ while running:
             # controlar el tiempo que lleva la partida
             tiempo_actual += (deltatime * mult_velocidad) / 1000.
 
-            if tiempo_actual >= 120:
+            if tiempo_actual >= MAX_TIME and len(pajaros_vivos) != 100:
+                prev_gen = len(pajaros_vivos)
+                Pajaro.vivo = False
+                pajaros_vivos.clear()
+                seleccion_y_evolucion()
+                continue
+
+            elif tiempo_actual >= MAX_TIME and len(pajaros_vivos) == 100:
                 game_on = False
+
 
             #game_on = colisiones(imagenPajarito.get_rect(topleft=(jugadorX, jugadorY)), lista_tuberias)
                     
@@ -406,6 +415,7 @@ while running:
             pajaros_vivos = nuevos_vivos
 
             if not pajaros_vivos:
+                prev_gen = 0
                 seleccion_y_evolucion()
                 continue
 
@@ -449,9 +459,9 @@ while running:
 
             screen.blit(imagenPajarito, (jugadorX, pajaro.y))
 
-        if tiempo_actual >= 120:
+        if tiempo_actual >= 120 and len(pajaros_vivos) == 100:
                 
-                goal = texto_fuente.render("Time Goal Reached", True, (255, 255, 255))
+                goal = texto_fuente.render("Goal Reached", True, (255, 255, 255))
                 goal_rect = goal.get_rect(center=(500, 275))
                 screen.blit(goal, goal_rect)
 
