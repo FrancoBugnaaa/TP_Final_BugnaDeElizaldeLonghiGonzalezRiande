@@ -94,6 +94,7 @@ TEXTO_COLOR = (255, 255, 255)
 
 titulo_fuente = pygame.font.Font(None, 35)
 texto_fuente = pygame.font.Font(None, 25)
+texto_mini = pygame.font.Font(None, 20)
 
 
 def crear_tuberia():   
@@ -108,7 +109,6 @@ def crear_tuberia():
 
 
 def jugador(x,y,tuberias):
-
     for tubo in tuberias:
          if tubo.bottom >= 600:
               screen.blit(tubo_abajo_img, tubo)
@@ -287,17 +287,12 @@ def seleccion_y_evolucion():
     reset()
 
 def dibujar_genomas(surface, x_start, y_start, poblacion):
-    # --- AJUSTES PARA PANEL DE 300px ---
-    scale = 35        # Escala intermedia
-    bar_height = 12
-    espaciado = 25
-    
-    # El centro de las barras estará en x + 160px
-    center_x = x_start + 160 
+    scale = 35        
+    bar_height = 16  
+    espaciado = 28 
+    bg_width = 150    
+    center_x = x_start + 150 
 
-    texto_fuente_mini = pygame.font.Font(None, 20)
-
-    # Título
     titulo = texto_fuente.render("Genome (Avg ± Std)", True, (255, 255, 255))
     surface.blit(titulo, (x_start, y_start))
     y_start += 35
@@ -305,7 +300,7 @@ def dibujar_genomas(surface, x_start, y_start, poblacion):
     if not poblacion:
         return
 
-    labels = ["w0(Bias)", "w1(dy)", "w2(dy²)", "w3(dx)", "w4(dx²)", "w5(vy)"]
+    labels = ["w0(Bias)", "w1(dy)", "w2(dy2)", "w3(dx)", "w4(dx2)", "w5(vy)"]
 
     for i in range(6):
         nombre_peso = f"w{i}"
@@ -315,37 +310,39 @@ def dibujar_genomas(surface, x_start, y_start, poblacion):
         varianza = sum((x - promedio) ** 2 for x in valores) / len(valores)
         desviacion = math.sqrt(varianza)
 
-        draw_y = y_start + 2
+        draw_y = y_start
 
-        # 1. Etiqueta (Texto alineado a la izquierda)
-        lbl = texto_fuente_mini.render(labels[i], True, (180, 180, 180))
+        lbl = texto_mini.render(labels[i], True, (180, 180, 180))
         surface.blit(lbl, (x_start, y_start))
+        bg_rect = pygame.Rect(center_x - bg_width // 2, draw_y, bg_width, bar_height)
+        pygame.draw.rect(surface, (40, 40, 40), bg_rect) 
+        pygame.draw.rect(surface, (70, 70, 70), bg_rect, 1) 
 
-        # 2. Línea central (Cero)
-        pygame.draw.line(surface, (100, 100, 100), (center_x, draw_y - 5), (center_x, draw_y + bar_height + 5), 1)
-
-        # 3. Barra Desviación (Gris)
         start_dev = (promedio - desviacion) * scale
         width_dev = (desviacion * 2) * scale
+        
+        if width_dev > bg_width: width_dev = bg_width 
+        
         rect_dev = pygame.Rect(center_x + start_dev, draw_y, width_dev, bar_height)
-        pygame.draw.rect(surface, (80, 80, 80), rect_dev) 
-
-        # 4. Barra Promedio (Color)
-        color = (0, 255, 0) if promedio >= 0 else (255, 50, 50)
+        pygame.draw.rect(surface, (100, 100, 100), rect_dev) 
+        
+        color = (0, 255, 0) if promedio >= 0 else (255, 0, 0)
         largo_promedio = promedio * scale
         
+        limit_px = bg_width // 2
+        if largo_promedio > limit_px: largo_promedio = limit_px
+        if largo_promedio < -limit_px: largo_promedio = -limit_px
+
         if promedio >= 0:
-            rect_avg = pygame.Rect(center_x, draw_y + 3, largo_promedio, bar_height - 6)
+            rect_avg = pygame.Rect(center_x, draw_y, largo_promedio, bar_height)
         else:
-            rect_avg = pygame.Rect(center_x + largo_promedio, draw_y + 3, -largo_promedio, bar_height - 6)
+            rect_avg = pygame.Rect(center_x + largo_promedio, draw_y, -largo_promedio, bar_height)
             
         pygame.draw.rect(surface, color, rect_avg)
+        pygame.draw.line(surface, (250, 250, 250), (center_x, draw_y), (center_x, draw_y + bar_height), 1)
 
-        # 5. Valor numérico (A la derecha de todo, pequeño)
         val_txt = texto_fuente.render(f"{promedio:.2f}", True, (255, 255, 255))
-        # Si la barra es muy larga a la derecha, movemos el texto para que no se pisen
-        text_x = center_x + 80 
-        surface.blit(val_txt, (text_x, y_start))
+        surface.blit(val_txt, (center_x + bg_width//2 + 10, y_start))
 
         y_start += espaciado
         
