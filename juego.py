@@ -21,7 +21,7 @@ VELOCIDAD_TUBERIAS = 5
 GAP_ALTURA = 200
 jugadorX = 300
 LIMITE_SUELO = 550
-BIRDS_2MIN = 60
+BIRDS_2MIN = 50
 
 #Escalas para normalizar las cosas
 MAX_DELTA_Y = HEIGHT * 1.5
@@ -519,7 +519,7 @@ while running:
 
             screen.blit(imagenPajarito, (jugadorX, pajaro.y))
 
-        if tiempo_actual >= 120 and len(pajaros_vivos) == 100:
+        if tiempo_actual >= 120 and len(pajaros_vivos) == BIRDS_2MIN:
                 
                 goal = texto_fuente.render("Goal Reached", True, (255, 255, 255))
                 goal_rect = goal.get_rect(center=(500, 275))
