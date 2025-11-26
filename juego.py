@@ -21,6 +21,7 @@ VELOCIDAD_TUBERIAS = 5
 GAP_ALTURA = 200
 jugadorX = 300
 LIMITE_SUELO = 550
+BIRDS_2MIN = 60
 
 #Escalas para normalizar las cosas
 MAX_DELTA_Y = HEIGHT * 1.5
@@ -88,6 +89,7 @@ pygame.time.set_timer(CREARTUBERIA, 1200)
 propulsor_img = pygame.image.load("assets/propulsor.png").convert_alpha()
 
 panel_rect = pygame.Rect(700, 0, 300, 600)
+speed_rect = pygame.Rect(30, 520, 80, 50)
 PANEL_COLOR = (16, 16, 16)
 TITULO_COLOR = (255, 255, 0)
 TEXTO_COLOR = (255, 255, 255)
@@ -160,6 +162,11 @@ def estadisticas():
 
     dibujar_genomas(screen, x_pos, y_pos, poblacion)
 
+    pygame.draw.rect(screen, PANEL_COLOR, speed_rect)
+    pygame.draw.rect(screen, (255, 255, 255), speed_rect, 3)
+    cuadrado_velocidad = titulo_fuente.render(stats_velocidad, True, TEXTO_COLOR)
+    velocidad_rect = cuadrado_velocidad.get_rect(center=speed_rect.center)
+    screen.blit(cuadrado_velocidad, velocidad_rect)
 
 muertes = []
 
@@ -244,7 +251,6 @@ def seleccion_y_evolucion():
 
     if poblacion:
 
-        print(f"Gen {stats_generacion-1} -> Mejor Distancia: {poblacion[0].distancia_recorrida}")
         stats_max_distancia = max(stats_max_distancia, poblacion[0].distancia_recorrida)
 
         distancia_total = 0
@@ -300,7 +306,7 @@ def dibujar_genomas(surface, x_start, y_start, poblacion):
     if not poblacion:
         return
 
-    labels = ["w0", "w1(dy)", "w2(dy²)", "w3(dx)", "w4(dx²)", "w5(vy)"]
+    labels = ["w0", "w1(Δy)", "w2(Δy²)", "w3(Δx)", "w4(Δx²)", "w5(Vy)"]
 
     for i in range(6):
         nombre_peso = f"w{i}"
@@ -403,14 +409,14 @@ while running:
             # controlar el tiempo que lleva la partida
             tiempo_actual += (deltatime * mult_velocidad) / 1000.
 
-            if tiempo_actual >= MAX_TIME and len(pajaros_vivos) != 100:
+            if tiempo_actual >= MAX_TIME and len(pajaros_vivos) < BIRDS_2MIN:
                 prev_gen = len(pajaros_vivos)
                 Pajaro.vivo = False
                 pajaros_vivos.clear()
                 seleccion_y_evolucion()
                 continue
 
-            elif tiempo_actual >= MAX_TIME and len(pajaros_vivos) == 100:
+            elif tiempo_actual >= MAX_TIME and len(pajaros_vivos) >= BIRDS_2MIN:
                 game_on = False
 
 
