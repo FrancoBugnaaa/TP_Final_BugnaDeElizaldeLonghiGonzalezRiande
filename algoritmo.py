@@ -38,10 +38,10 @@ class Genomas_Pajaros:
     
     def aleteo(self,delta_y:float,delta_x:float,velocidad_y:float)->bool:
         aletear = (self.w0 + self.w1*delta_y + self.w2 * (delta_y**2)+ self.w3 * delta_x + self.w4 * (delta_x**2)+ self.w5 * velocidad_y)
-        if aletear < 0:
-            return False
-        else:
+        if aletear > 0:
             return True
+        else:
+            return False
     
     def cruce_uniforme (gen_a : "Genomas_Pajaros", gen_b : "Genomas_Pajaros", probabilidad_cruce: float = 0.5)-> "Genomas_Pajaros":
         '''

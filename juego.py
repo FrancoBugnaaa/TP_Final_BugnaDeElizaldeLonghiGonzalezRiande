@@ -9,7 +9,7 @@ from pygame import mixer
 TAMANO_POBLACION = 100
 PROB_CRUCE = 0.5
 PROB_MUTACION = 0.1
-SELECCION_ELITE = 2
+SELECCION_ELITE = 8
 
 #Constantes Juego
 FPS = 60
@@ -244,39 +244,24 @@ def seleccion_y_evolucion():
     stats_generacion += 1
     stats_distancia = 0
 
-    # Ordenar por fitness (distancia_recorrida)
     poblacion.sort(key=lambda p: p.distancia_recorrida, reverse=True)
-
-    mutation_strength = 0.5 * (1 + math.exp(-stats_generacion / 30))
+    mutation_strength = 0.3 * (1 + math.exp(-stats_generacion / 30))
 
     if poblacion:
-
         stats_max_distancia = max(stats_max_distancia, poblacion[0].distancia_recorrida)
-
         distancia_total = 0
-
         for i in range(len(poblacion)):
             distancia_total += poblacion[i].distancia_recorrida
 
-    # Elitismo
+
     nueva_poblacion = [Pajaro(p.genomas) for p in poblacion[:SELECCION_ELITE]]
-
     fitness_total = sum(p.distancia_recorrida for p in poblacion)
-
     promedio_distancia = (distancia_total // len(poblacion))
 
 
     def seleccionar_padre():
-        if fitness_total == 0:
-            return random.choice(poblacion).genomas
-
-        r = random.uniform(0, fitness_total)
-        acumulado = 0
-        for pajaro in poblacion:
-            acumulado += pajaro.distancia_recorrida
-            if acumulado > r:
-                return pajaro.genomas
-        return poblacion[0].genomas
+        aspirantes = random.sample(poblacion, 5)
+        return max(aspirantes, key=lambda p: p.distancia_recorrida).genomas
 
     while len(nueva_poblacion) < TAMANO_POBLACION:
         padre1 = seleccionar_padre()
@@ -411,7 +396,6 @@ while running:
 
             if tiempo_actual >= MAX_TIME and len(pajaros_vivos) < BIRDS_2MIN:
                 prev_gen = len(pajaros_vivos)
-                Pajaro.vivo = False
                 pajaros_vivos.clear()
                 seleccion_y_evolucion()
                 continue
