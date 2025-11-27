@@ -225,7 +225,7 @@ def generar_poblacion_inicial():
 
     poblacion = []
     for _ in range(TAMANO_POBLACION):
-        genoma = Genomas_Pajaros.asignacion_random(escala=1.0)
+        genoma = Genomas_Pajaros.asignacion_random()
         poblacion.append(Pajaro(genoma))
 
     # Reiniciar estado físico de todos los pájaros
