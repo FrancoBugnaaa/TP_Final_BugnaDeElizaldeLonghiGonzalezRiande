@@ -279,14 +279,15 @@ def seleccion_y_evolucion():
 
     reset()
 
-def dibujar_genomas(surface, x_start, y_start, poblacion):
-    scale = 35        
+def dibujar_genomas(surface, x_start, y_start, poblacion):       
     bar_height = 16  
     espaciado = 28 
-    bg_width = 150    
+    bg_width = 150   
     center_x = x_start + 150 
-
-    titulo = texto_fuente.render("Genome (Avg ± Std)", True, (255, 255, 255))
+    max_value = 5
+    half_width = bg_width // 2
+    scale = half_width / max_value
+    titulo = texto_fuente.render("Genome (Avg)", True, (255, 255, 255))
     surface.blit(titulo, (x_start, y_start))
     y_start += 35
 
@@ -300,23 +301,20 @@ def dibujar_genomas(surface, x_start, y_start, poblacion):
         valores = [getattr(p.genomas, nombre_peso) for p in poblacion]
         
         promedio = sum(valores) / len(valores)
-        varianza = sum((x - promedio) ** 2 for x in valores) / len(valores)
-        desviacion = math.sqrt(varianza)
 
         draw_y = y_start
 
         lbl = texto_mini.render(labels[i], True, (180, 180, 180))
         surface.blit(lbl, (x_start, y_start))
         bg_rect = pygame.Rect(center_x - bg_width // 2, draw_y, bg_width, bar_height)
-        pygame.draw.rect(surface, (40, 40, 40), bg_rect) 
+        pygame.draw.rect(surface, (40, 40, 40), bg_rect)
         pygame.draw.rect(surface, (70, 70, 70), bg_rect, 1) 
    
         color = (0, 255, 0) if promedio >= 0 else (255, 0, 0)
         largo_promedio = promedio * scale
         
-        limit_px = bg_width // 2
-        if largo_promedio > limit_px: largo_promedio = limit_px
-        if largo_promedio < -limit_px: largo_promedio = -limit_px
+        if largo_promedio > half_width: largo_promedio = half_width
+        if largo_promedio < -half_width: largo_promedio = -half_width
 
         if promedio >= 0:
             rect_avg = pygame.Rect(center_x, draw_y, largo_promedio, bar_height)
@@ -327,7 +325,7 @@ def dibujar_genomas(surface, x_start, y_start, poblacion):
         pygame.draw.line(surface, (250, 250, 250), (center_x, draw_y), (center_x, draw_y + bar_height), 1)
 
         val_txt = texto_fuente.render(f"{promedio:.2f}", True, (255, 255, 255))
-        surface.blit(val_txt, (center_x + bg_width//2 + 10, y_start))
+        surface.blit(val_txt, (center_x + half_width + 10, y_start))
 
         y_start += espaciado
         
