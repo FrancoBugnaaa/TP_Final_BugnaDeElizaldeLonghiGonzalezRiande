@@ -21,7 +21,7 @@ VELOCIDAD_TUBERIAS = 5
 GAP_ALTURA = 200
 jugadorX = 300
 LIMITE_SUELO = 550
-BIRDS_2MIN = 50
+BIRDS_2MIN = 40
 
 #Escalas para normalizar las cosas
 MAX_DELTA_Y = HEIGHT * 1.5
@@ -241,6 +241,8 @@ def seleccion_y_evolucion():
     """Selección, cruce y mutación para formar la nueva generación."""
     global poblacion, pajaros_vivos, stats_generacion, stats_max_distancia, stats_distancia, promedio_distancia 
 
+    print(f"Pájaros que pasaron (sobrevivientes): {prev_gen} {stats_generacion}")
+
     stats_generacion += 1
     stats_distancia = 0
 
@@ -308,15 +310,7 @@ def dibujar_genomas(surface, x_start, y_start, poblacion):
         bg_rect = pygame.Rect(center_x - bg_width // 2, draw_y, bg_width, bar_height)
         pygame.draw.rect(surface, (40, 40, 40), bg_rect) 
         pygame.draw.rect(surface, (70, 70, 70), bg_rect, 1) 
-
-        start_dev = (promedio - desviacion) * scale
-        width_dev = (desviacion * 2) * scale
-        
-        if width_dev > bg_width: width_dev = bg_width 
-        
-        rect_dev = pygame.Rect(center_x + start_dev, draw_y, width_dev, bar_height)
-        pygame.draw.rect(surface, (100, 100, 100), rect_dev) 
-        
+   
         color = (0, 255, 0) if promedio >= 0 else (255, 0, 0)
         largo_promedio = promedio * scale
         
@@ -400,7 +394,7 @@ while running:
                 seleccion_y_evolucion()
                 continue
 
-            elif tiempo_actual >= MAX_TIME and len(pajaros_vivos) >= BIRDS_2MIN:
+            elif tiempo_actual >= MAX_TIME and len(pajaros_vivos) >= BIRDS_2MIN or stats_generacion == 100:
                 game_on = False
 
 
@@ -437,8 +431,9 @@ while running:
 
                 if next_pipe is not None:
                     next_pipe_center = next_pipe.bottom + GAP_ALTURA//2 
-
-                    delta_y_cruda = next_pipe_center - pajaro.y
+                    centro_pajaro_y = pajaro.y + imagenPajarito.get_height() / 2
+                    objetivo_y = next_pipe_center - 20
+                    delta_y_cruda = next_pipe_center -   pajaro.y
                     delta_x_cruda = next_pipe.left - jugadorX
 
                     delta_y_escalada = delta_y_cruda / MAX_DELTA_Y
@@ -503,7 +498,7 @@ while running:
 
             screen.blit(imagenPajarito, (jugadorX, pajaro.y))
 
-        if tiempo_actual >= 120 and len(pajaros_vivos) == BIRDS_2MIN:
+        if tiempo_actual >= 120 and len(pajaros_vivos) >= BIRDS_2MIN:
                 
                 goal = texto_fuente.render("Goal Reached", True, (255, 255, 255))
                 goal_rect = goal.get_rect(center=(500, 275))
