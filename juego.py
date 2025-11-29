@@ -356,13 +356,7 @@ while running:
                 
 
 
-            # if event.key == pygame.K_SPACE:
-            #     if game_on:
-            #         velocidad_y = -10
-            #         #sonido_disparo.play()
-            #     else:
-            #         jugadorY, velocidad_y, lista_tuberias, stats_distancia = reset()
-            #         game_on = True
+    
 
             if event.key == pygame.K_1:
                 mult_velocidad = 1.0
