@@ -176,8 +176,8 @@ def colisiones(pajarito_rect, tuberias):
         if pajarito_rect.colliderect(tubo_rect):
             
             #sonido_de_explosion
-            # explosion = mixer.Sound("explosion.wav")
-            # explosion.Sound.play()
+            explosion = mixer.Sound("explosion.wav")
+            explosion.play()
 
             muertes.append(pajarito_rect)
             
@@ -187,8 +187,8 @@ def colisiones(pajarito_rect, tuberias):
     
     if pajarito_rect.top <= 0 or pajarito_rect.bottom >= 550:
         #sonido_de_explosion
-        # explosion = mixer.play("explosion.wav")
-        # explosion.Sound.play()
+        explosion = mixer.Sound("explosion.wav")
+        explosion.play()
 
         muertes.append(pajarito_rect)
         return False
