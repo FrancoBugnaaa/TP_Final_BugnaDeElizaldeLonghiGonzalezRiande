@@ -2,7 +2,6 @@ import pygame
 import math
 import random
 from algoritmo import Genomas_Pajaros, Pajaro
-
 from pygame import mixer
 
 #Constantes GA
@@ -47,11 +46,12 @@ pygame.mixer.init()
 
 #Creacion de la ventana del juego
 screen = pygame.display.set_mode((WIDTH,HEIGHT))
-
 clock = pygame.time.Clock()
 
+#Sistema
 poblacion = []
 pajaros_vivos = []
+
 
 tiempo_inicio = pygame.time.get_ticks()
 
@@ -63,14 +63,19 @@ mixer.music.load("background.wav")
 mixer.music.play(-1)
 
 
+
 #Titulo e iconos
 pygame.display.set_caption("The Flappy Space Ship")
 icon = pygame.image.load("assets/nave.png")
 pygame.display.set_icon(icon)
 
-explosion = pygame.image.load("assets/explosion.png").convert_alpha()
 
+#Sprites
+explosion = pygame.image.load("assets/explosion.png").convert_alpha()
 imagenPajarito = pygame.image.load("assets/nave.png").convert_alpha()
+propulsor_img = pygame.image.load("assets/propulsor.png").convert_alpha()
+
+
 jugadorX = 300
 jugadorY = 300
 cambios_jugadorX = 0
@@ -78,18 +83,23 @@ velocidad_y = 0
 
 tubo_abajo_img = pygame.image.load("assets/tuberia_abajo.png").convert_alpha()
 tubo_arriba_img = pygame.image.load("assets/tuberia_arriba.png").convert_alpha()
+
+#Tuberias iniciales
 tub_abajo_inicial = tubo_abajo_img.get_rect(midtop=(900, 300 + GAP_ALTURA//2))
-
 tub_arriba_inicial = tubo_arriba_img.get_rect(midbottom=(900, 300 - GAP_ALTURA//2))
-
 lista_tuberias = [tub_abajo_inicial, tub_arriba_inicial]
+
+
+#Evento de creacion
 CREARTUBERIA = pygame.USEREVENT
 pygame.time.set_timer(CREARTUBERIA, 1200)
 
-propulsor_img = pygame.image.load("assets/propulsor.png").convert_alpha()
 
+
+#Panel
 panel_rect = pygame.Rect(700, 0, 300, 600)
 speed_rect = pygame.Rect(30, 520, 80, 50)
+
 PANEL_COLOR = (16, 16, 16)
 TITULO_COLOR = (255, 255, 0)
 TEXTO_COLOR = (255, 255, 255)
@@ -99,12 +109,14 @@ texto_fuente = pygame.font.Font(None, 25)
 texto_mini = pygame.font.Font(None, 20)
 
 
+#FUNCIONES DEL JUEGO
+
 def crear_tuberia():   
     espacio = random.randint(150, 250)
     espacio_altura = random.randint(200, 400)
    
+
     tub_abajo = tubo_abajo_img.get_rect(midtop=(1000, espacio_altura + espacio//2))
-    
     tub_arriba = tubo_arriba_img.get_rect(midbottom=(1000, espacio_altura - espacio//2))
 
     return tub_abajo, tub_arriba
@@ -176,6 +188,7 @@ def colisiones(pajarito_rect, tuberias):
         if pajarito_rect.colliderect(tubo_rect):
             
             #sonido_de_explosion
+            # arriba del archivo, con los otros assets:
             explosion = mixer.Sound("explosion.wav")
             explosion.play()
 
@@ -354,10 +367,6 @@ while running:
             if event.key == pygame.K_ESCAPE:
                 running = False
                 
-
-
-    
-
             if event.key == pygame.K_1:
                 mult_velocidad = 1.0
                 stats_velocidad = "1x"
