@@ -2,7 +2,6 @@ import pygame
 import math
 import random
 from algoritmo import Genomas_Pajaros, Pajaro
-
 from pygame import mixer
 
 #Constantes GA
@@ -174,11 +173,6 @@ def colisiones(pajarito_rect, tuberias):
     
     for tubo_rect in tuberias:
         if pajarito_rect.colliderect(tubo_rect):
-            
-            #sonido_de_explosion
-            explosion = mixer.Sound("explosion.wav")
-            explosion.play()
-
             muertes.append(pajarito_rect)
             
 
@@ -186,10 +180,6 @@ def colisiones(pajarito_rect, tuberias):
         
     
     if pajarito_rect.top <= 0 or pajarito_rect.bottom >= 550:
-        #sonido_de_explosion
-        explosion = mixer.Sound("explosion.wav")
-        explosion.play()
-
         muertes.append(pajarito_rect)
         return False
     
@@ -199,8 +189,6 @@ def reset():
 
     global tiempo_inicio, jugadorY,velocidad_y,lista_tuberias,stats_distancia, promedio_distancia, tiempo_actual
     
-    # random.seed(SEMILLA)
-    
     jugadorY = 300
     velocidad_y = 0
 
@@ -208,15 +196,11 @@ def reset():
     tub_arriba_inicial = tubo_arriba_img.get_rect(midbottom=(900, 300 - 200//2))
     
     lista_tuberias = [tub_abajo_inicial, tub_arriba_inicial]
-
     stats_distancia = 0
-
     tiempo_inicio = pygame.time.get_ticks()
-
     tiempo_actual = 0
-
     muertes.clear()
-
+    
     return jugadorY, velocidad_y, lista_tuberias, stats_distancia
 
 def generar_poblacion_inicial():
@@ -245,9 +229,8 @@ def seleccion_y_evolucion():
 
     stats_generacion += 1
     stats_distancia = 0
-
-    poblacion.sort(key=lambda p: p.distancia_recorrida, reverse=True)
-    mutation_strength = 0.3 * (1 + math.exp(-stats_generacion / 30))
+    poblacion.sort(key=lambda p: p.distancia_recorrida, reverse=True)   
+    mutation_strength = max(0.5, (1 - stats_generacion/200))
 
     if poblacion:
         stats_max_distancia = max(stats_max_distancia, poblacion[0].distancia_recorrida)
@@ -374,9 +357,6 @@ while running:
             running = False
         
     if game_on:  
-
-
-
             # controlar el tiempo que lleva la partida
             tiempo_actual += (deltatime * mult_velocidad) / 1000.
 
@@ -386,7 +366,7 @@ while running:
                 seleccion_y_evolucion()
                 continue
 
-            elif tiempo_actual >= MAX_TIME and len(pajaros_vivos) >= BIRDS_2MIN or stats_generacion == 100:
+            elif tiempo_actual >= MAX_TIME and len(pajaros_vivos) >= BIRDS_2MIN or stats_generacion > 100:
                 game_on = False
 
 
@@ -490,7 +470,7 @@ while running:
 
             screen.blit(imagenPajarito, (jugadorX, pajaro.y))
 
-        if tiempo_actual >= 120 and len(pajaros_vivos) >= BIRDS_2MIN:
+        if tiempo_actual >= 120 and len(pajaros_vivos) >= BIRDS_2MIN or stats_generacion > 100:
                 
                 goal = texto_fuente.render("Goal Reached", True, (255, 255, 255))
                 goal_rect = goal.get_rect(center=(500, 275))
