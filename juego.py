@@ -13,7 +13,6 @@ SELECCION_ELITE = 8
 #Constantes Juego
 FPS = 60
 MAX_TIME = 120
-
 WIDTH, HEIGHT = 1000,600
 GRAVEDAD = 0.5
 VELOCIDAD_TUBERIAS = 5
@@ -51,8 +50,6 @@ clock = pygame.time.Clock()
 #Sistema
 poblacion = []
 pajaros_vivos = []
-
-
 tiempo_inicio = pygame.time.get_ticks()
 
 #Fondo
@@ -62,13 +59,10 @@ fondo = pygame.image.load("assets/espacio.png")
 mixer.music.load("background.wav")
 mixer.music.play(-1)
 
-
-
 #Titulo e iconos
 pygame.display.set_caption("The Flappy Space Ship")
 icon = pygame.image.load("assets/nave.png")
 pygame.display.set_icon(icon)
-
 
 #Sprites
 explosion = pygame.image.load("assets/explosion.png").convert_alpha()
@@ -276,6 +270,9 @@ def seleccion_y_evolucion():
     reset()
 
 def dibujar_genomas(surface, x_start, y_start, poblacion):       
+    '''
+    Dibuja la evolucion de los genomas a lo largo de las generaciones
+    '''
     bar_height = 16  
     espaciado = 28 
     bg_width = 150   
