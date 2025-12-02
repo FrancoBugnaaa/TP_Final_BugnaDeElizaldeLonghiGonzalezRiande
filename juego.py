@@ -111,7 +111,13 @@ texto_mini = pygame.font.Font(None, 20)
 
 #FUNCIONES DEL JUEGO
 
-def crear_tuberia():   
+def crear_tuberia(): 
+
+    """""  
+    Crea un par de tuberias nuevas (una arriba y una abajo) con un espacio aleatorio entre medio de ellas.
+    Devuelve los dos rectangulos (imagenes de tuberia) ya ubicados a la derecha de la pantalla.
+    """""
+
     espacio = random.randint(150, 250)
     espacio_altura = random.randint(200, 400)
    
@@ -123,6 +129,12 @@ def crear_tuberia():
 
 
 def jugador(x,y,tuberias):
+
+    """""
+    Dibuja todas las tuberias que estan en la lista de la pantalla.
+    Segun donde esten( arriba u abajo) elige la imagen correspondiente.
+    """""
+
     for tubo in tuberias:
          if tubo.bottom >= 600:
               screen.blit(tubo_abajo_img, tubo)
@@ -130,6 +142,13 @@ def jugador(x,y,tuberias):
             screen.blit(tubo_arriba_img, tubo)
 
 def estadisticas():
+
+    """""
+    Dibuja el panel lateral con info del algoritmo genetico y de la partida:
+    generacion, naves en partida, distancias, tiempo y velocidad.
+    Ademas muestra un resumen de los genomas.
+    """""
+
     pygame.draw.rect(screen, PANEL_COLOR, panel_rect)
 
     x_pos = 710
@@ -183,6 +202,13 @@ def estadisticas():
 muertes = []
 
 def colisiones(pajarito_rect, tuberias):
+
+    """""
+    Revisa si la nave chocó contra alguna tuberia, con el techo u el suelo.
+    Devuelve False si se estrelló y True si sigue en juego.
+    Por otra parte guarda la posicion de la nave al estrellar para dibujar la explosion en ese lugar despues.
+    """""
+
     
     for tubo_rect in tuberias:
         if pajarito_rect.colliderect(tubo_rect):
@@ -199,6 +225,11 @@ def colisiones(pajarito_rect, tuberias):
     return True
 
 def reset():
+
+    """""
+    Reinicia la partida.
+    Ubica a la nave espacial en el medio, se crean nuevas tuberias, se resetea la distancia, el tiempo y se limpia la lista de muertes:
+    """""
 
     global tiempo_inicio, jugadorY,velocidad_y,lista_tuberias,stats_distancia, promedio_distancia, tiempo_actual
     
@@ -217,7 +248,7 @@ def reset():
     return jugadorY, velocidad_y, lista_tuberias, stats_distancia
 
 def generar_poblacion_inicial():
-    """Genera primera población y resetea el mapa fijo."""
+    """Genera primera población aleatoriamente, resetea el mapa fijo y las estadisticas."""
     global poblacion, pajaros_vivos, stats_generacion, stats_distancia
 
     poblacion = []
@@ -258,6 +289,11 @@ def seleccion_y_evolucion():
 
 
     def seleccionar_padre():
+
+        """""
+        Elige un padre creando una competencia entre cinco naves espaciales,
+        quedandose con la que llegó mas lejos.
+        """""
         aspirantes = random.sample(poblacion, 5)
         return max(aspirantes, key=lambda p: p.distancia_recorrida).genomas
 
@@ -275,7 +311,8 @@ def seleccion_y_evolucion():
 
     reset()
 
-def dibujar_genomas(surface, x_start, y_start, poblacion):       
+def dibujar_genomas(surface, x_start, y_start, poblacion):  
+    "En general muestra como van mejorando las naves tras las generaciones"     
     bar_height = 16  
     espaciado = 28 
     bg_width = 150   
