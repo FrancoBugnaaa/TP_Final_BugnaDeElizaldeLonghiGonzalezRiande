@@ -108,8 +108,10 @@ texto_mini = pygame.font.Font(None, 20)
 def crear_tuberia(): 
 
     """""  
-    Crea un par de tuberias nuevas (una arriba y una abajo) con un espacio aleatorio entre medio de ellas.
-    Devuelve los dos rectangulos (imagenes de tuberia) ya ubicados a la derecha de la pantalla.
+    Para crear una nueva tuberia, se elige un espacio aleatorio de distancia entre las dos tuberias, luego se elige otra distancia
+    aleatoria para la altura del espacio entre las tuberias. De esta manera todas se van diferenciando.
+
+    Con esos valores se crean los rectangulos de las tuberias y returnea ambos rectangulos. 
     """""
 
     espacio = random.randint(150, 250)
@@ -125,8 +127,10 @@ def crear_tuberia():
 def jugador(x,y,tuberias):
 
     """""
-    Dibuja todas las tuberias que estan en la lista de la pantalla.
-    Segun donde esten( arriba u abajo) elige la imagen correspondiente.
+    Esta funcion dibuja las tuberías en la pantalla principal.
+
+    Recorre la lista de tuberías y determina automáticamente si debe usar 
+    la imagen de la tubería superior o inferior basándose en su posición Y.
     """""
 
     for tubo in tuberias:
@@ -138,9 +142,19 @@ def jugador(x,y,tuberias):
 def estadisticas():
 
     """""
-    Dibuja el panel lateral con info del algoritmo genetico y de la partida:
-    generacion, naves en partida, distancias, tiempo y velocidad.
-    Ademas muestra un resumen de los genomas.
+    Dibuja el panel lateral con info del algoritmo genetico y de la partida.
+
+    Recibe lo valores de:
+    - stats_generacion (int): Generacion actual
+    - pajaros_vivos (list): Lista de pájaros vivos
+    - prev_gen (int): Cantidad de pájaros que sobrevivieron en la generación anterior
+    - stats_velocidad (str): Velocidad actual del juego (que afecto el deltatime)
+    - stats_distancia (int): Distancia recorrida en la partida actual
+    - stats_max_distancia (int): Maxima distancia recorrida en todas las generaciones
+    - promedio_distancia (int): Promedio de distancia recorrida por los pájaros en la generacion anterior
+    - tiempo_actual (int): Tiempo transcurrido en la partida actual
+
+    Y todo esto lo renderiza en el panel lateral derecho, agregando la funcion dibujar_genomas.
     """""
 
     pygame.draw.rect(screen, PANEL_COLOR, panel_rect)
@@ -198,9 +212,8 @@ muertes = []
 def colisiones(pajarito_rect, tuberias):
 
     """""
-    Revisa si la nave chocó contra alguna tuberia, con el techo u el suelo.
-    Devuelve False si se estrelló y True si sigue en juego.
-    Por otra parte guarda la posicion de la nave al estrellar para dibujar la explosion en ese lugar despues.
+    Esta funcion revisa si el pájaro colisiona con alguna tubería o con los límites de la pantalla, como se corre todos los frames, 
+    si hay colisión se agrega el rectangulo del pájaro a la lista de muertes y se retorna False, sino retorna True.
     """""
 
     
@@ -222,7 +235,8 @@ def reset():
 
     """""
     Reinicia la partida.
-    Ubica a la nave espacial en el medio, se crean nuevas tuberias, se resetea la distancia, el tiempo y se limpia la lista de muertes:
+    
+    Devuelve todo al estado inicial: posición del pájaro, velocidad, tuberías, estadísticas y tiempo.
     """""
 
     global tiempo_inicio, jugadorY,velocidad_y,lista_tuberias,stats_distancia, promedio_distancia, tiempo_actual
@@ -242,7 +256,9 @@ def reset():
     return jugadorY, velocidad_y, lista_tuberias, stats_distancia
 
 def generar_poblacion_inicial():
-    """Genera primera población aleatoriamente, resetea el mapa fijo y las estadisticas."""
+    """
+    Genera primera población aleatoriamente, resetea el mapa fijo y las estadisticas.
+    """
     global poblacion, pajaros_vivos, stats_generacion, stats_distancia
 
     poblacion = []
@@ -260,7 +276,9 @@ def generar_poblacion_inicial():
     reset()
 
 def seleccion_y_evolucion():
-    """Selección, cruce y mutación para formar la nueva generación."""
+    """
+    Selección, cruce y mutación para formar la nueva generación.
+    """
     global poblacion, pajaros_vivos, stats_generacion, stats_max_distancia, stats_distancia, promedio_distancia 
 
     print(f"Pájaros que pasaron (sobrevivientes): {prev_gen} {stats_generacion}")
@@ -306,7 +324,9 @@ def seleccion_y_evolucion():
     reset()
 
 def dibujar_genomas(surface, x_start, y_start, poblacion):  
-    "En general muestra como van mejorando las naves tras las generaciones"     
+    """
+    En general muestra como van mejorando las naves tras las generaciones
+    """     
     bar_height = 16  
     espaciado = 28 
     bg_width = 150   
