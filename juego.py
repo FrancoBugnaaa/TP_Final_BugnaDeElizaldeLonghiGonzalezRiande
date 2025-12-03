@@ -108,10 +108,13 @@ texto_mini = pygame.font.Font(None, 20)
 def crear_tuberia(): 
 
     """""  
-    Para crear una nueva tuberia, se elige un espacio aleatorio de distancia entre las dos tuberias, luego se elige otra distancia
-    aleatoria para la altura del espacio entre las tuberias. De esta manera todas se van diferenciando.
+   Genera una nueva pareja de tuberías (arriba y abajo) en una posición aleatoria.
 
-    Con esos valores se crean los rectangulos de las tuberias y returnea ambos rectangulos. 
+   Evita que el juego sea repetitivo.
+   Cada generación tiene obstaculos distintos. Por lo que el algoritmo generico aprende con distintas situaciones.
+
+    Return:
+        (tub_abajo, tub_arriba): rectángulos de las dos tuberías.
     """""
 
     espacio = random.randint(150, 250)
@@ -131,6 +134,7 @@ def jugador(x,y,tuberias):
 
     Recorre la lista de tuberías y determina automáticamente si debe usar 
     la imagen de la tubería superior o inferior basándose en su posición Y.
+    (Las imágenes no colisionan, colisionan los rectángulos)
     """""
 
     for tubo in tuberias:
@@ -326,6 +330,13 @@ def seleccion_y_evolucion():
 def dibujar_genomas(surface, x_start, y_start, poblacion):  
     """
     En general muestra como van mejorando las naves tras las generaciones
+    Permite ver si la población está convergiendo (todos pesos parecidos) o divergiendo (pesos muy distintos entre sí).
+
+    Cada peso w0..w5 representa:
+        w0: sesgo (tendencia a aletear o no).
+        w1, w2: relación con delta_y (distancia vertical al hueco).
+        w3, w4: relación con delta_x (distancia horizontal).
+        w5: impacto de la velocidad vertical.
     """     
     bar_height = 16  
     espaciado = 28 
