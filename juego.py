@@ -13,7 +13,6 @@ SELECCION_ELITE = 8
 #Constantes Juego
 FPS = 60
 MAX_TIME = 120
-
 WIDTH, HEIGHT = 1000,600
 GRAVEDAD = 0.5
 VELOCIDAD_TUBERIAS = 5
@@ -51,8 +50,6 @@ clock = pygame.time.Clock()
 #Sistema
 poblacion = []
 pajaros_vivos = []
-
-
 tiempo_inicio = pygame.time.get_ticks()
 
 #Fondo
@@ -62,13 +59,10 @@ fondo = pygame.image.load("assets/espacio.png")
 mixer.music.load("background.wav")
 mixer.music.play(-1)
 
-
-
 #Titulo e iconos
 pygame.display.set_caption("The Flappy Space Ship")
 icon = pygame.image.load("assets/nave.png")
 pygame.display.set_icon(icon)
-
 
 #Sprites
 explosion = pygame.image.load("assets/explosion.png").convert_alpha()
@@ -111,7 +105,18 @@ texto_mini = pygame.font.Font(None, 20)
 
 #FUNCIONES DEL JUEGO
 
-def crear_tuberia():   
+def crear_tuberia(): 
+
+    """""  
+   Genera una nueva pareja de tuberías (arriba y abajo) en una posición aleatoria.
+
+   Evita que el juego sea repetitivo.
+   Cada generación tiene obstaculos distintos. Por lo que el algoritmo generico aprende con distintas situaciones.
+
+    Return:
+        (tub_abajo, tub_arriba): rectángulos de las dos tuberías.
+    """""
+
     espacio = random.randint(150, 250)
     espacio_altura = random.randint(200, 400)
    
@@ -123,6 +128,15 @@ def crear_tuberia():
 
 
 def jugador(x,y,tuberias):
+
+    """""
+    Esta funcion dibuja las tuberías en la pantalla principal.
+
+    Recorre la lista de tuberías y determina automáticamente si debe usar 
+    la imagen de la tubería superior o inferior basándose en su posición Y.
+    (Las imágenes no colisionan, colisionan los rectángulos)
+    """""
+
     for tubo in tuberias:
          if tubo.bottom >= 600:
               screen.blit(tubo_abajo_img, tubo)
@@ -130,6 +144,23 @@ def jugador(x,y,tuberias):
             screen.blit(tubo_arriba_img, tubo)
 
 def estadisticas():
+
+    """""
+    Dibuja el panel lateral con info del algoritmo genetico y de la partida.
+
+    Recibe lo valores de:
+    - stats_generacion (int): Generacion actual
+    - pajaros_vivos (list): Lista de pájaros vivos
+    - prev_gen (int): Cantidad de pájaros que sobrevivieron en la generación anterior
+    - stats_velocidad (str): Velocidad actual del juego (que afecto el deltatime)
+    - stats_distancia (int): Distancia recorrida en la partida actual
+    - stats_max_distancia (int): Maxima distancia recorrida en todas las generaciones
+    - promedio_distancia (int): Promedio de distancia recorrida por los pájaros en la generacion anterior
+    - tiempo_actual (int): Tiempo transcurrido en la partida actual
+
+    Y todo esto lo renderiza en el panel lateral derecho, agregando la funcion dibujar_genomas.
+    """""
+
     pygame.draw.rect(screen, PANEL_COLOR, panel_rect)
 
     x_pos = 710
@@ -183,6 +214,12 @@ def estadisticas():
 muertes = []
 
 def colisiones(pajarito_rect, tuberias):
+
+    """""
+    Esta funcion revisa si el pájaro colisiona con alguna tubería o con los límites de la pantalla, como se corre todos los frames, 
+    si hay colisión se agrega el rectangulo del pájaro a la lista de muertes y se retorna False, sino retorna True.
+    """""
+
     
     for tubo_rect in tuberias:
         if pajarito_rect.colliderect(tubo_rect):
@@ -199,6 +236,12 @@ def colisiones(pajarito_rect, tuberias):
     return True
 
 def reset():
+
+    """""
+    Reinicia la partida.
+    
+    Devuelve todo al estado inicial: posición del pájaro, velocidad, tuberías, estadísticas y tiempo.
+    """""
 
     global tiempo_inicio, jugadorY,velocidad_y,lista_tuberias,stats_distancia, promedio_distancia, tiempo_actual
     
@@ -217,7 +260,9 @@ def reset():
     return jugadorY, velocidad_y, lista_tuberias, stats_distancia
 
 def generar_poblacion_inicial():
-    """Genera primera población y resetea el mapa fijo."""
+    """
+    Genera primera población aleatoriamente, resetea el mapa fijo y las estadisticas.
+    """
     global poblacion, pajaros_vivos, stats_generacion, stats_distancia
 
     poblacion = []
@@ -235,7 +280,9 @@ def generar_poblacion_inicial():
     reset()
 
 def seleccion_y_evolucion():
-    """Selección, cruce y mutación para formar la nueva generación."""
+    """
+    Selección, cruce y mutación para formar la nueva generación.
+    """
     global poblacion, pajaros_vivos, stats_generacion, stats_max_distancia, stats_distancia, promedio_distancia 
 
     print(f"Pájaros que pasaron (sobrevivientes): {prev_gen} {stats_generacion}")
@@ -258,6 +305,11 @@ def seleccion_y_evolucion():
 
 
     def seleccionar_padre():
+
+        """""
+        Elige un padre creando una competencia entre cinco naves espaciales,
+        quedandose con la que llegó mas lejos.
+        """""
         aspirantes = random.sample(poblacion, 5)
         return max(aspirantes, key=lambda p: p.distancia_recorrida).genomas
 
@@ -275,7 +327,17 @@ def seleccion_y_evolucion():
 
     reset()
 
-def dibujar_genomas(surface, x_start, y_start, poblacion):       
+def dibujar_genomas(surface, x_start, y_start, poblacion):  
+    """
+    En general muestra como van mejorando las naves tras las generaciones
+    Permite ver si la población está convergiendo (todos pesos parecidos) o divergiendo (pesos muy distintos entre sí).
+
+    Cada peso w0..w5 representa:
+        w0: sesgo (tendencia a aletear o no).
+        w1, w2: relación con delta_y (distancia vertical al hueco).
+        w3, w4: relación con delta_x (distancia horizontal).
+        w5: impacto de la velocidad vertical.
+    """     
     bar_height = 16  
     espaciado = 28 
     bg_width = 150   
